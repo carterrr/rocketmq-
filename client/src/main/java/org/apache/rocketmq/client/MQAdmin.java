@@ -28,7 +28,7 @@ import org.apache.rocketmq.remoting.exception.RemotingException;
 public interface MQAdmin {
     /**
      * Creates an topic
-     *
+     * 创建主题
      * @param key accesskey
      * @param newTopic topic name
      * @param queueNum topic's queue number
@@ -38,7 +38,7 @@ public interface MQAdmin {
 
     /**
      * Creates an topic
-     *
+     * 创建主题
      * @param key accesskey
      * @param newTopic topic name
      * @param queueNum topic's queue number
@@ -50,7 +50,7 @@ public interface MQAdmin {
     /**
      * Gets the message queue offset according to some time in milliseconds<br>
      * be cautious to call because of more IO overhead
-     *
+     * 根据时间戳查找对应mq队列中的偏移量
      * @param mq Instance of MessageQueue
      * @param timestamp from when in milliseconds.
      * @return offset
@@ -83,7 +83,7 @@ public interface MQAdmin {
 
     /**
      * Query message according to message id
-     *
+     * 依据偏移量查找消息
      * @param offsetMsgId message id
      * @return message
      */
@@ -92,7 +92,7 @@ public interface MQAdmin {
 
     /**
      * Query messages
-     *
+     * 根据多个条件查找消息
      * @param topic message topic
      * @param key message key index word
      * @param maxNum max message number
@@ -104,6 +104,7 @@ public interface MQAdmin {
         final long end) throws MQClientException, InterruptedException;
 
     /**
+     * 依据消息id及主题查找消息
      * @return The {@code MessageExt} of given msgId
      */
     MessageExt viewMessage(String topic,

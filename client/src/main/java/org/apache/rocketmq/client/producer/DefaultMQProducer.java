@@ -94,24 +94,26 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
 
     /**
      * Maximum number of retry to perform internally before claiming sending failure in synchronous mode. </p>
-     *
+     * 再重试两次  意思最多发三次
      * This may potentially cause message duplication which is up to application developers to resolve.
      */
     private int retryTimesWhenSendFailed = 2;
 
     /**
      * Maximum number of retry to perform internally before claiming sending failure in asynchronous mode. </p>
-     *
+     * 再重试两次  意思最多发三次
      * This may potentially cause message duplication which is up to application developers to resolve.
      */
     private int retryTimesWhenSendAsyncFailed = 2;
 
     /**
+     * 换个broker发送时  是否等待当前broker的返回值  默认不等直接换
      * Indicate whether to retry another broker on sending failure internally.
      */
     private boolean retryAnotherBrokerWhenNotStoreOK = false;
 
     /**
+     * 批量发送/单条发送  消息长度不超过4兆
      * Maximum allowed message size in bytes.
      */
     private int maxMessageSize = 1024 * 1024 * 4; // 4M
@@ -158,6 +160,7 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
     public DefaultMQProducer(final String producerGroup, RPCHook rpcHook, boolean enableMsgTrace,
         final String customizedTraceTopic) {
         this.producerGroup = producerGroup;
+        // 创建实例的时候初始化 defaultMQProducerImpl  producerImpl和producer互相引用
         defaultMQProducerImpl = new DefaultMQProducerImpl(this, rpcHook);
         //if client open the message trace feature
         if (enableMsgTrace) {
@@ -260,7 +263,7 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
 
     /**
      * Start this producer instance. </p>
-     *
+     * 生产者启动方法
      * <strong> Much internal initializing procedures are carried out to make this instance prepared, thus, it's a must
      * to invoke this method before sending or querying messages. </strong> </p>
      *
@@ -268,7 +271,9 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      */
     @Override
     public void start() throws MQClientException {
+        // 设置组名
         this.setProducerGroup(withNamespace(this.producerGroup));
+        // 启动 defaultMQProducerImpl  真正的启动
         this.defaultMQProducerImpl.start();
         if (null != traceDispatcher) {
             try {
