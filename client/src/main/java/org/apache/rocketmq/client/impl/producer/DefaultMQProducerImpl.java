@@ -140,6 +140,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
             });
     }
 
+    // 禁止发送的消息
     public void registerCheckForbiddenHook(CheckForbiddenHook checkForbiddenHook) {
         this.checkForbiddenHookList.add(checkForbiddenHook);
         log.info("register a new checkForbiddenHook. hookName={}, allHookSize={}", checkForbiddenHook.hookName(),
@@ -564,6 +565,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
         // 2. 查询路由
         // 查找主题对应的broker信息  先从缓存中找 没找到再去namesrv
         TopicPublishInfo topicPublishInfo = this.tryToFindTopicPublishInfo(msg.getTopic());
+        // 查找出来不为空且状态正常
         if (topicPublishInfo != null && topicPublishInfo.ok()) {
             boolean callTimeout = false;
             MessageQueue mq = null;
@@ -574,7 +576,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
             String[] brokersSent = new String[timesTotal];
             for (; times < timesTotal; times++) {
                 String lastBrokerName = null == mq ? null : mq.getBrokerName();
-                // 选择队列
+                // 选择队列                                                             上一次发送的broker   发过就不发了  负载均衡
                 MessageQueue mqSelected = this.selectOneMessageQueue(topicPublishInfo, lastBrokerName);
                 if (mqSelected != null) {
                     mq = mqSelected;
@@ -590,9 +592,10 @@ public class DefaultMQProducerImpl implements MQProducerInner {
                             callTimeout = true;
                             break;
                         }
-
+                        // 真正的发送消息
                         sendResult = this.sendKernelImpl(msg, mq, communicationMode, sendCallback, topicPublishInfo, timeout - costTime);
                         endTimestamp = System.currentTimeMillis();
+                        // 如果发送超时  将选择的broker放入无效broker表
                         this.updateFaultItem(mq.getBrokerName(), endTimestamp - beginTimestampPrev, false);
                         switch (communicationMode) {
                             case ASYNC:
@@ -717,6 +720,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
         }
     }
 
+    // 真正的生产者发送方法
     private SendResult sendKernelImpl(final Message msg,
         final MessageQueue mq,
         final CommunicationMode communicationMode,
@@ -725,6 +729,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
         final long timeout) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {
         long beginStartTime = System.currentTimeMillis();
         String brokerAddr = this.mQClientFactory.findBrokerAddressInPublish(mq.getBrokerName());
+        // 地址为空  重新找broker
         if (null == brokerAddr) {
             tryToFindTopicPublishInfo(mq.getTopic());
             brokerAddr = this.mQClientFactory.findBrokerAddressInPublish(mq.getBrokerName());
@@ -732,12 +737,14 @@ public class DefaultMQProducerImpl implements MQProducerInner {
 
         SendMessageContext context = null;
         if (brokerAddr != null) {
+            // 获得broker网络地址
             brokerAddr = MixAll.brokerVIPChannel(this.defaultMQProducer.isSendMessageWithVIPChannel(), brokerAddr);
 
             byte[] prevBody = msg.getBody();
             try {
                 //for MessageBatch,ID has been set in the generating process
                 if (!(msg instanceof MessageBatch)) {
+                    // 唯一 messageId  设置
                     MessageClientIDSetter.setUniqID(msg);
                 }
 
@@ -749,7 +756,9 @@ public class DefaultMQProducerImpl implements MQProducerInner {
 
                 int sysFlag = 0;
                 boolean msgBodyCompressed = false;
+                // 尝试压缩 超过 4M的消息体
                 if (this.tryToCompressMessage(msg)) {
+                    // 多次压缩  ｜ 运算保证结果都是0x1
                     sysFlag |= MessageSysFlag.COMPRESSED_FLAG;
                     msgBodyCompressed = true;
                 }
@@ -758,7 +767,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
                 if (tranMsg != null && Boolean.parseBoolean(tranMsg)) {
                     sysFlag |= MessageSysFlag.TRANSACTION_PREPARED_TYPE;
                 }
-
+                // 检查该消息类型是否被禁止发送了
                 if (hasCheckForbiddenHook()) {
                     CheckForbiddenContext checkForbiddenContext = new CheckForbiddenContext();
                     checkForbiddenContext.setNameSrvAddr(this.defaultMQProducer.getNamesrvAddr());
@@ -770,7 +779,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
                     checkForbiddenContext.setUnitMode(this.isUnitMode());
                     this.executeCheckForbiddenHook(checkForbiddenContext);
                 }
-
+                // 客户端指定了钩子方法🪝  先对消息进行钩子增强  如对每个消息进行  id增强代理
                 if (this.hasSendMessageHook()) {
                     context = new SendMessageContext();
                     context.setProducer(this);
@@ -791,7 +800,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
                     }
                     this.executeSendMessageHookBefore(context);
                 }
-
+                // 封装请求头
                 SendMessageRequestHeader requestHeader = new SendMessageRequestHeader();
                 requestHeader.setProducerGroup(this.defaultMQProducer.getProducerGroup());
                 requestHeader.setTopic(msg.getTopic());
@@ -845,6 +854,7 @@ public class DefaultMQProducerImpl implements MQProducerInner {
                         if (timeout < costTimeAsync) {
                             throw new RemotingTooMuchRequestException("sendKernelImpl call timeout");
                         }
+                        //  ** 执行发送 通过  MQClientAPIImpl**
                         sendResult = this.mQClientFactory.getMQClientAPIImpl().sendMessage(
                             brokerAddr,
                             mq.getBrokerName(),
@@ -918,12 +928,14 @@ public class DefaultMQProducerImpl implements MQProducerInner {
     }
 
     private boolean tryToCompressMessage(final Message msg) {
+        // 批量消息不允许压缩
         if (msg instanceof MessageBatch) {
             //batch dose not support compressing right now
             return false;
         }
         byte[] body = msg.getBody();
         if (body != null) {
+            // 消息长度超过4M
             if (body.length >= this.defaultMQProducer.getCompressMsgBodyOverHowmuch()) {
                 try {
                     byte[] data = UtilAll.compress(body, zipCompressLevel);

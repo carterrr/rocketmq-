@@ -56,6 +56,7 @@ public class MQFaultStrategy {
     }
 
     public MessageQueue selectOneMessageQueue(final TopicPublishInfo tpInfo, final String lastBrokerName) {
+        //   sendLatencyFaultEnable 参数表示消息发送失败时的默认延迟机制  初始值为false
         if (this.sendLatencyFaultEnable) {
             try {
                 int index = tpInfo.getSendWhichQueue().getAndIncrement();
@@ -64,15 +65,18 @@ public class MQFaultStrategy {
                     if (pos < 0)
                         pos = 0;
                     MessageQueue mq = tpInfo.getMessageQueueList().get(pos);
+                    // 查看轮询找出来的broker 是否运行正常  会不会宕机了  运行正常的才会返回
                     if (latencyFaultTolerance.isAvailable(mq.getBrokerName())) {
                         if (null == lastBrokerName || mq.getBrokerName().equals(lastBrokerName))
                             return mq;
                     }
                 }
-
+                // 都是不可用的  取出一个相对比较好的 进行发送
                 final String notBestBroker = latencyFaultTolerance.pickOneAtLeast();
+                // 从broker中取出可写队列
                 int writeQueueNums = tpInfo.getQueueIdByBroker(notBestBroker);
                 if (writeQueueNums > 0) {
+                    // 存在可写队列  选一个发送
                     final MessageQueue mq = tpInfo.selectOneMessageQueue();
                     if (notBestBroker != null) {
                         mq.setBrokerName(notBestBroker);
@@ -80,6 +84,7 @@ public class MQFaultStrategy {
                     }
                     return mq;
                 } else {
+                    // 从历史发送失败表中移除  下次正常发送试试
                     latencyFaultTolerance.remove(notBestBroker);
                 }
             } catch (Exception e) {
@@ -88,7 +93,7 @@ public class MQFaultStrategy {
 
             return tpInfo.selectOneMessageQueue();
         }
-
+        // 取上次没发送过的broker返回
         return tpInfo.selectOneMessageQueue(lastBrokerName);
     }
 

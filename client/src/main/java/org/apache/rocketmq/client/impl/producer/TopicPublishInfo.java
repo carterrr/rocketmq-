@@ -67,9 +67,11 @@ public class TopicPublishInfo {
     }
 
     public MessageQueue selectOneMessageQueue(final String lastBrokerName) {
+        // 没查找过 直接返回
         if (lastBrokerName == null) {
             return selectOneMessageQueue();
         } else {
+            // 取一个没发送过的
             int index = this.sendWhichQueue.getAndIncrement();
             for (int i = 0; i < this.messageQueueList.size(); i++) {
                 int pos = Math.abs(index++) % this.messageQueueList.size();
@@ -80,11 +82,13 @@ public class TopicPublishInfo {
                     return mq;
                 }
             }
+            // 只有一个broker时   循环完还没命中
             return selectOneMessageQueue();
         }
     }
 
     public MessageQueue selectOneMessageQueue() {
+        // 索引取模返回  每次索引自增一  下次来取下一个
         int index = this.sendWhichQueue.getAndIncrement();
         int pos = Math.abs(index) % this.messageQueueList.size();
         if (pos < 0)

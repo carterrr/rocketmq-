@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.rocketmq.client.common.ThreadLocalIndex;
 
 public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> {
+    //
     private final ConcurrentHashMap<String, FaultItem> faultItemTable = new ConcurrentHashMap<String, FaultItem>(16);
 
     private final ThreadLocalIndex whichItemWorst = new ThreadLocalIndex();
@@ -36,7 +37,7 @@ public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> 
             final FaultItem faultItem = new FaultItem(name);
             faultItem.setCurrentLatency(currentLatency);
             faultItem.setStartTimestamp(System.currentTimeMillis() + notAvailableDuration);
-
+            // 失效broker
             old = this.faultItemTable.putIfAbsent(name, faultItem);
             if (old != null) {
                 old.setCurrentLatency(currentLatency);
@@ -72,14 +73,16 @@ public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> 
         }
 
         if (!tmpList.isEmpty()) {
+            // 随机
             Collections.shuffle(tmpList);
-
+            // 随机
             Collections.sort(tmpList);
 
             final int half = tmpList.size() / 2;
             if (half <= 0) {
                 return tmpList.get(0).getName();
             } else {
+                // 列表分两半后  每次从前一半取一个
                 final int i = this.whichItemWorst.getAndIncrement() % half;
                 return tmpList.get(i).getName();
             }
