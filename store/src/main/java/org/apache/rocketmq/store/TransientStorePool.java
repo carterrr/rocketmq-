@@ -31,9 +31,9 @@ import sun.nio.ch.DirectBuffer;
 public class TransientStorePool {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
 
-    private final int poolSize;
-    private final int fileSize;
-    private final Deque<ByteBuffer> availableBuffers;
+    private final int poolSize;  // availableBuffers 格式
+    private final int fileSize;  // 每个  ByteBuffer 大小
+    private final Deque<ByteBuffer> availableBuffers; // ByteBuffer 容器 双端队列
     private final MessageStoreConfig storeConfig;
 
     public TransientStorePool(final MessageStoreConfig storeConfig) {
@@ -44,14 +44,18 @@ public class TransientStorePool {
     }
 
     /**
+     * 初始化方法  主要为了引入 防止交换到swap内存机制
      * It's a heavy init method.
      */
     public void init() {
+        // 创建 poolSize 个堆外内存
         for (int i = 0; i < poolSize; i++) {
+            // 每个大小为 fileSize
             ByteBuffer byteBuffer = ByteBuffer.allocateDirect(fileSize);
 
             final long address = ((DirectBuffer) byteBuffer).address();
             Pointer pointer = new Pointer(address);
+            // 使用 com.sun.jna.Library 类库锁定该块内存 避免被放到交换内存swap中 提高内存性能
             LibC.INSTANCE.mlock(pointer, new NativeLong(fileSize));
 
             availableBuffers.offer(byteBuffer);

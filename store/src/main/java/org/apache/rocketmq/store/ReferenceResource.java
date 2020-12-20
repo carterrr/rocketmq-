@@ -40,10 +40,14 @@ public abstract class ReferenceResource {
         return this.available;
     }
 
+    // 由destory触发
     public void shutdown(final long intervalForcibly) {
         if (this.available) {
+            // 设置当前mqppedFile 状态为关闭
             this.available = false;
+            // 设置关闭时间戳
             this.firstShutdownTimestamp = System.currentTimeMillis();
+            // 释放资源
             this.release();
         } else if (this.getRefCount() > 0) {
             if ((System.currentTimeMillis() - this.firstShutdownTimestamp) >= intervalForcibly) {

@@ -115,7 +115,7 @@ public class CommitLog {
 
         this.flushCommitLogService.shutdown();
     }
-
+    // 提交及刷盘
     public long flush() {
         this.mappedFileQueue.commit(0);
         this.mappedFileQueue.flush(0);

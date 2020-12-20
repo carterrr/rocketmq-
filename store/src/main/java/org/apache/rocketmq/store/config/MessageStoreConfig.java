@@ -137,7 +137,10 @@ public class MessageStoreConfig {
     private boolean diskFallRecorded = true;
     private long osPageCacheBusyTimeOutMills = 1000;
     private int defaultQueryMaxNum = 32;
-
+    // 是否开启堆外内存  使用堆外内存池
+    // 为true 表示先将数据存储到堆外内存
+    //        然后通过commit线程将数据提交到内存映射buffer中
+    //        在通过flush线程将内存映射buffer中数据持久化到磁盘
     @ImportantField
     private boolean transientStorePoolEnable = false;
     private int transientStorePoolSize = 5;
