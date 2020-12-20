@@ -63,33 +63,34 @@ import org.apache.rocketmq.store.index.QueryOffsetResult;
 import org.apache.rocketmq.store.schedule.ScheduleMessageService;
 import org.apache.rocketmq.store.stats.BrokerStatsManager;
 
+// 消息存储核心类
 public class DefaultMessageStore implements MessageStore {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.STORE_LOGGER_NAME);
-
+    // 消息配置属性类
     private final MessageStoreConfig messageStoreConfig;
-    // CommitLog
+    // CommitLog  文件存储实现类
     private final CommitLog commitLog;
-
+    // 消息队列存储缓存表  按照消息主题topic分组  维护消息队列
     private final ConcurrentMap<String/* topic */, ConcurrentMap<Integer/* queueId */, ConsumeQueue>> consumeQueueTable;
-
+    // 消息队列文件刷盘线程
     private final FlushConsumeQueueService flushConsumeQueueService;
-
+    // 清除commitlog文件的  服务  消息被消费后可以删除
     private final CleanCommitLogService cleanCommitLogService;
-
+    // 清除consumerQueue队列文件服务
     private final CleanConsumeQueueService cleanConsumeQueueService;
-
+    // 索引实现类
     private final IndexService indexService;
-
+    // MappedFile分配服务
     private final AllocateMappedFileService allocateMappedFileService;
-
+    // commitlog消息分发， 依据commitlog文件 转发到conmumerQueue IndexFile   构建文件
     private final ReputMessageService reputMessageService;
-
+    // 存储HA机制  高可用机制
     private final HAService haService;
-
+    // 消息服务调度线程
     private final ScheduleMessageService scheduleMessageService;
-
+    // 消息存储服务
     private final StoreStatsService storeStatsService;
-
+    // 消息堆外内存缓存  打开堆外内存后 刷盘时先刷到堆外内存中
     private final TransientStorePool transientStorePool;
 
     private final RunningFlags runningFlags = new RunningFlags();
@@ -97,16 +98,19 @@ public class DefaultMessageStore implements MessageStore {
 
     private final ScheduledExecutorService scheduledExecutorService =
         Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl("StoreScheduledThread"));
+    // broker状态管理器
     private final BrokerStatsManager brokerStatsManager;
+    // 消息拉取长轮训模式模式  消息达到监听器
     private final MessageArrivingListener messageArrivingListener;
+    // broker配置类
     private final BrokerConfig brokerConfig;
 
     private volatile boolean shutdown = true;
-
+    // 文件刷盘监测点
     private StoreCheckpoint storeCheckpoint;
 
     private AtomicLong printTimes = new AtomicLong(0);
-
+    // commitLog文件转发请求
     private final LinkedList<CommitLogDispatcher> dispatcherList;
 
     private RandomAccessFile lockFile;
@@ -370,11 +374,12 @@ public class DefaultMessageStore implements MessageStore {
     }
 
     private PutMessageStatus checkMessages(MessageExtBatch messageExtBatch) {
+        // 检查主题长度
         if (messageExtBatch.getTopic().length() > Byte.MAX_VALUE) {
             log.warn("putMessage message topic length too long " + messageExtBatch.getTopic().length());
             return PutMessageStatus.MESSAGE_ILLEGAL;
         }
-
+        // 检查消息长度
         if (messageExtBatch.getBody().length > messageStoreConfig.getMaxMessageSize()) {
             log.warn("PutMessages body length too long " + messageExtBatch.getBody().length);
             return PutMessageStatus.MESSAGE_ILLEGAL;
@@ -384,11 +389,12 @@ public class DefaultMessageStore implements MessageStore {
     }
 
     private PutMessageStatus checkStoreStatus() {
+        // 关闭了不写
         if (this.shutdown) {
             log.warn("message store has shutdown, so putMessage is forbidden");
             return PutMessageStatus.SERVICE_NOT_AVAILABLE;
         }
-
+        // 从节点也不写入磁盘
         if (BrokerRole.SLAVE == this.messageStoreConfig.getBrokerRole()) {
             long value = this.printTimes.getAndIncrement();
             if ((value % 50000) == 0) {
@@ -396,7 +402,7 @@ public class DefaultMessageStore implements MessageStore {
             }
             return PutMessageStatus.SERVICE_NOT_AVAILABLE;
         }
-
+        // 是否可写
         if (!this.runningFlags.isWriteable()) {
             long value = this.printTimes.getAndIncrement();
             if ((value % 50000) == 0) {
@@ -406,7 +412,7 @@ public class DefaultMessageStore implements MessageStore {
         } else {
             this.printTimes.set(0);
         }
-
+        //pageCache是否可写  内存是否可用
         if (this.isOSPageCacheBusy()) {
             return PutMessageStatus.OS_PAGECACHE_BUSY;
         }
@@ -501,19 +507,22 @@ public class DefaultMessageStore implements MessageStore {
         return result;
     }
 
+    // 消息存储方法
     @Override
     public PutMessageResult putMessages(MessageExtBatch messageExtBatch) {
+        // 检查是否应该存储
         PutMessageStatus checkStoreStatus = this.checkStoreStatus();
         if (checkStoreStatus != PutMessageStatus.PUT_OK) {
             return new PutMessageResult(checkStoreStatus, null);
         }
-
+        //检查当前消息是否可以存储
         PutMessageStatus msgCheckStatus = this.checkMessages(messageExtBatch);
         if (msgCheckStatus == PutMessageStatus.MESSAGE_ILLEGAL) {
             return new PutMessageResult(msgCheckStatus, null);
         }
 
         long beginTime = this.getSystemClock().now();
+        // 通过commitLog类进行存储
         PutMessageResult result = this.commitLog.putMessages(messageExtBatch);
         long elapsedTime = this.getSystemClock().now() - beginTime;
         if (elapsedTime > 500) {

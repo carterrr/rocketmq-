@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.rocketmq.common.MixAll;
 
+// 注意这种迭代器的写法   implements Iterable
 public class MessageBatch extends Message implements Iterable<Message> {
 
     private static final long serialVersionUID = 621335151046335557L;
@@ -54,6 +55,7 @@ public class MessageBatch extends Message implements Iterable<Message> {
             if (first == null) {
                 first = message;
             } else {
+                // 任意一个与第一个不同就抛异常 不用两两比较
                 if (!first.getTopic().equals(message.getTopic())) {
                     throw new UnsupportedOperationException("The topic of the messages in one batch should be the same");
                 }

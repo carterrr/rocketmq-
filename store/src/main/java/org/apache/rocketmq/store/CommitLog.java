@@ -1015,7 +1015,7 @@ public class CommitLog {
     public PutMessageResult putMessages(final MessageExtBatch messageExtBatch) {
         messageExtBatch.setStoreTimestamp(System.currentTimeMillis());
         AppendMessageResult result;
-
+        // 拿到消息存储服务
         StoreStatsService storeStatsService = this.defaultMessageStore.getStoreStatsService();
 
         final int tranType = MessageSysFlag.getTransactionValue(messageExtBatch.getSysFlag());
@@ -1023,6 +1023,7 @@ public class CommitLog {
         if (tranType != MessageSysFlag.TRANSACTION_NOT_TYPE) {
             return new PutMessageResult(PutMessageStatus.MESSAGE_ILLEGAL, null);
         }
+        // 延迟消息不应马上存储
         if (messageExtBatch.getDelayTimeLevel() > 0) {
             return new PutMessageResult(PutMessageStatus.MESSAGE_ILLEGAL, null);
         }
@@ -1038,14 +1039,16 @@ public class CommitLog {
         }
 
         long elapsedTimeInLock = 0;
+        // rocketmq使用文件内存映射机制
         MappedFile unlockMappedFile = null;
+        // 拿到最后一页
         MappedFile mappedFile = this.mappedFileQueue.getLastMappedFile();
 
         //fine-grained lock instead of the coarse-grained
         MessageExtBatchEncoder batchEncoder = batchEncoderThreadLocal.get();
 
         messageExtBatch.setEncodedBuff(batchEncoder.encode(messageExtBatch));
-
+        //同步存储  加锁
         putMessageLock.lock();
         try {
             long beginLockTimestamp = this.defaultMessageStore.getSystemClock().now();
@@ -1054,7 +1057,7 @@ public class CommitLog {
             // Here settings are stored timestamp, in order to ensure an orderly
             // global
             messageExtBatch.setStoreTimestamp(beginLockTimestamp);
-
+            // 为空或者写满了  都创建一个新的mappedFile
             if (null == mappedFile || mappedFile.isFull()) {
                 mappedFile = this.mappedFileQueue.getLastMappedFile(0); // Mark: NewFile may be cause noise
             }
@@ -1063,7 +1066,7 @@ public class CommitLog {
                 beginTimeInLock = 0;
                 return new PutMessageResult(PutMessageStatus.CREATE_MAPEDFILE_FAILED, null);
             }
-
+            // 追加消息
             result = mappedFile.appendMessages(messageExtBatch, this.appendMessageCallback);
             switch (result.getStatus()) {
                 case PUT_OK:
@@ -1095,6 +1098,7 @@ public class CommitLog {
             elapsedTimeInLock = this.defaultMessageStore.getSystemClock().now() - beginLockTimestamp;
             beginTimeInLock = 0;
         } finally {
+            // 释放锁
             putMessageLock.unlock();
         }
 
@@ -1111,9 +1115,9 @@ public class CommitLog {
         // Statistics
         storeStatsService.getSinglePutMessageTopicTimesTotal(messageExtBatch.getTopic()).addAndGet(result.getMsgNum());
         storeStatsService.getSinglePutMessageTopicSizeTotal(messageExtBatch.getTopic()).addAndGet(result.getWroteBytes());
-
+        // MARK 从 byteBuffer 刷盘
         handleDiskFlush(result, putMessageResult, messageExtBatch);
-
+        // 执行HA  主从同步
         handleHA(result, putMessageResult, messageExtBatch);
 
         return putMessageResult;
@@ -1520,7 +1524,7 @@ public class CommitLog {
             final MessageExtBrokerInner msgInner) {
             // STORETIMESTAMP + STOREHOSTADDRESS + OFFSET <br>
 
-            // PHY OFFSET
+            // PHY OFFSET  当前的写位置
             long wroteOffset = fileFromOffset + byteBuffer.position();
 
             int sysflag = msgInner.getSysFlag();
@@ -1532,6 +1536,7 @@ public class CommitLog {
 
             this.resetByteBuffer(storeHostHolder, storeHostLength);
             String msgId;
+            // 设置消息id
             if ((sysflag & MessageSysFlag.STOREHOSTADDRESS_V6_FLAG) == 0) {
                 msgId = MessageDecoder.createMessageId(this.msgIdMemory, msgInner.getStoreHostBytes(storeHostHolder), wroteOffset);
             } else {
@@ -1544,6 +1549,8 @@ public class CommitLog {
             keyBuilder.append('-');
             keyBuilder.append(msgInner.getQueueId());
             String key = keyBuilder.toString();
+            // 获得消息在队列中的偏移量  从队列中对应位置上开始写
+
             Long queueOffset = CommitLog.this.topicQueueTable.get(key);
             if (null == queueOffset) {
                 queueOffset = 0L;
@@ -1572,20 +1579,21 @@ public class CommitLog {
                 msgInner.getPropertiesString() == null ? null : msgInner.getPropertiesString().getBytes(MessageDecoder.CHARSET_UTF8);
 
             final int propertiesLength = propertiesData == null ? 0 : propertiesData.length;
-
+            // 属性集合的总长度 过长
             if (propertiesLength > Short.MAX_VALUE) {
                 log.warn("putMessage message properties length too long. length={}", propertiesData.length);
                 return new AppendMessageResult(AppendMessageStatus.PROPERTIES_SIZE_EXCEEDED);
             }
-
+            // topic 长度
             final byte[] topicData = msgInner.getTopic().getBytes(MessageDecoder.CHARSET_UTF8);
             final int topicLength = topicData.length;
-
+            // body长度
             final int bodyLength = msgInner.getBody() == null ? 0 : msgInner.getBody().length;
-
+            // 消息长度  所有长度综合
             final int msgLen = calMsgLength(msgInner.getSysFlag(), bodyLength, topicLength, propertiesLength);
 
             // Exceeds the maximum message
+            // 消息总长度大于当前队列中可用的空闲长度  返回需要重新创建文件commitLog
             if (msgLen > this.maxMessageSize) {
                 CommitLog.log.warn("message size exceeded, msg total size: " + msgLen + ", msg body size: " + bodyLength
                     + ", maxMessageSize: " + this.maxMessageSize);
@@ -1653,6 +1661,8 @@ public class CommitLog {
 
             final long beginTimeMills = CommitLog.this.defaultMessageStore.now();
             // Write messages to the queue buffer
+            // byteBuffer中写入 0 到  msgLen 长度的消息比特数据
+            // 是写到内存里了 没到磁盘
             byteBuffer.put(this.msgStoreItemMemory.array(), 0, msgLen);
 
             AppendMessageResult result = new AppendMessageResult(AppendMessageStatus.PUT_OK, wroteOffset, msgLen, msgId,
@@ -1665,6 +1675,7 @@ public class CommitLog {
                 case MessageSysFlag.TRANSACTION_NOT_TYPE:
                 case MessageSysFlag.TRANSACTION_COMMIT_TYPE:
                     // The next update ConsumeQueue information
+                    // 写入完成 更新偏移量
                     CommitLog.this.topicQueueTable.put(key, ++queueOffset);
                     break;
                 default:

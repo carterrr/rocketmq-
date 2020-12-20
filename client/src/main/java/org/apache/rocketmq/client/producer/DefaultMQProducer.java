@@ -898,6 +898,7 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
         return this.defaultMQProducerImpl.queryMessageByUniqKey(withNamespace(topic), msgId);
     }
 
+    // 批量消息发送前打包成一条后复用原单条发送逻辑
     @Override
     public SendResult send(
         Collection<Message> msgs) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {
@@ -951,10 +952,12 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
                 MessageClientIDSetter.setUniqID(message);
                 message.setTopic(withNamespace(message.getTopic()));
             }
+            // 转字节数组放到body
             msgBatch.setBody(msgBatch.encode());
         } catch (Exception e) {
             throw new MQClientException("Failed to initiate the MessageBatch", e);
         }
+        // 设置batch的topic
         msgBatch.setTopic(withNamespace(msgBatch.getTopic()));
         return msgBatch;
     }
