@@ -198,13 +198,17 @@ public class IndexService {
         return topic + "#" + key;
     }
 
+    // 转发commitlog到索引文件的方法
     public void buildIndex(DispatchRequest req) {
+        // 拿到索引文件
         IndexFile indexFile = retryGetAndCreateIndexFile();
         if (indexFile != null) {
+            // 获得索引文件最大偏移量 endPhyOffset
             long endPhyOffset = indexFile.getEndPhyOffset();
             DispatchRequest msg = req;
             String topic = msg.getTopic();
             String keys = msg.getKeys();
+            // 消息偏移量 小于 物理文件最大偏移量 重复转发
             if (msg.getCommitLogOffset() < endPhyOffset) {
                 return;
             }
@@ -218,8 +222,8 @@ public class IndexService {
                 case MessageSysFlag.TRANSACTION_ROLLBACK_TYPE:
                     return;
             }
-
             if (req.getUniqKey() != null) {
+                // 根据消息id构建索引index  req.getUniqKey()  再将index放到索引文件中（putKey方法完成）
                 indexFile = putKey(indexFile, msg, buildKey(topic, req.getUniqKey()));
                 if (indexFile == null) {
                     log.error("putKey error commitlog {} uniqkey {}", req.getCommitLogOffset(), req.getUniqKey());
@@ -232,6 +236,7 @@ public class IndexService {
                 for (int i = 0; i < keyset.length; i++) {
                     String key = keyset[i];
                     if (key.length() > 0) {
+                        // 根据key构建唯一索引 index key是业务key  自定义的那个  如使用applyId
                         indexFile = putKey(indexFile, msg, buildKey(topic, key));
                         if (indexFile == null) {
                             log.error("putKey error commitlog {} uniqkey {}", req.getCommitLogOffset(), req.getUniqKey());

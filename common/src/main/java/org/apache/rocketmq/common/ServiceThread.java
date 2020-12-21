@@ -48,8 +48,10 @@ public abstract class ServiceThread implements Runnable {
             return;
         }
         stopped = false;
+        // this 是  DefaultMessageStore 内部类  ReputMessageService
         this.thread = new Thread(this, getServiceName());
         this.thread.setDaemon(isDaemon);
+        // 调用该类的run方法
         this.thread.start();
     }
 
