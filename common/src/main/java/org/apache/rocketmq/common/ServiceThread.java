@@ -123,8 +123,9 @@ public abstract class ServiceThread implements Runnable {
     }
 
     public void wakeup() {
+        //  hasNotified false  改为 true 成功
         if (hasNotified.compareAndSet(false, true)) {
-            waitPoint.countDown(); // notify
+            waitPoint.countDown(); // notify 唤醒线程  执行 commitLog 类的 run（）方法
         }
     }
 
@@ -135,6 +136,7 @@ public abstract class ServiceThread implements Runnable {
         }
 
         //entry to wait
+        // 线程停止  等待被唤醒
         waitPoint.reset();
 
         try {

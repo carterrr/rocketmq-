@@ -433,6 +433,7 @@ public class MappedFileQueue {
             long tmpTimeStamp = mappedFile.getStoreTimestamp();
             int offset = mappedFile.flush(flushLeastPages);
             long where = mappedFile.getFileFromOffset() + offset;
+            // 文件末尾的offest  等于  总offest长度  不等说明需要刷新到下一个文件
             result = where == this.flushedWhere;
             this.flushedWhere = where;
             if (0 == flushLeastPages) {
