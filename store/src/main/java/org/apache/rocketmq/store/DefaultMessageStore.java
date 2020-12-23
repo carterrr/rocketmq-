@@ -299,6 +299,7 @@ public class DefaultMessageStore implements MessageStore {
         this.storeStatsService.start();
 
         this.createTempFile();
+        // 清理过期文件定时任务
         this.addScheduleTask();
         this.shutdown = false;
     }
@@ -1307,7 +1308,7 @@ public class DefaultMessageStore implements MessageStore {
     }
 
     private void addScheduleTask() {
-
+        // 每隔10秒清除文件 Periodically（ 定时的） 启动后一分钟 往后每隔 10秒
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
@@ -1355,9 +1356,11 @@ public class DefaultMessageStore implements MessageStore {
             }
         }, 1000L, 10000L, TimeUnit.MILLISECONDS);
     }
-
+    // 清理文件方法
     private void cleanFilesPeriodically() {
+        // 清理 CommitLog
         this.cleanCommitLogService.run();
+        // 清理 ConsumeQueue
         this.cleanConsumeQueueService.run();
     }
 
@@ -1622,7 +1625,7 @@ public class DefaultMessageStore implements MessageStore {
             this.manualDeleteFileSeveralTimes = MAX_MANUAL_DELETE_FILE_TIMES;
             DefaultMessageStore.log.info("executeDeleteFilesManually was invoked");
         }
-
+        // 清理过期文件 线程方法
         public void run() {
             try {
                 this.deleteExpiredFiles();
@@ -1634,17 +1637,23 @@ public class DefaultMessageStore implements MessageStore {
         }
 
         private void deleteExpiredFiles() {
+            // 删除的数量
             int deleteCount = 0;
+            // 文件保留时间
             long fileReservedTime = DefaultMessageStore.this.getMessageStoreConfig().getFileReservedTime();
+            // 删除物理文件间隔
             int deletePhysicFilesInterval = DefaultMessageStore.this.getMessageStoreConfig().getDeleteCommitLogFilesInterval();
+            // 线程被占用 第一次拒绝删除后能保留最大时间 超过该时间 文件将被强制删除
             int destroyMapedFileIntervalForcibly = DefaultMessageStore.this.getMessageStoreConfig().getDestroyMapedFileIntervalForcibly();
-
+            // 每天定时删除  默认4点
             boolean timeup = this.isTimeToDelete();
+            // 磁盘空间不足  < 10%
             boolean spacefull = this.isSpaceToDelete();
+            // 手工触发  预留参数
             boolean manualDelete = this.manualDeleteFileSeveralTimes > 0;
 
             if (timeup || spacefull || manualDelete) {
-
+                // 执行删除逻辑
                 if (manualDelete)
                     this.manualDeleteFileSeveralTimes--;
 
@@ -1695,20 +1704,23 @@ public class DefaultMessageStore implements MessageStore {
         }
 
         private boolean isSpaceToDelete() {
+            // 磁盘分区使用量占比
             double ratio = DefaultMessageStore.this.getMessageStoreConfig().getDiskMaxUsedSpaceRatio() / 100.0;
-
+            // 是否立即执行
             cleanImmediately = false;
 
             {
+                // commitlog 目录所在磁盘分区 磁盘使用率
                 String storePathPhysic = DefaultMessageStore.this.getMessageStoreConfig().getStorePathCommitLog();
                 double physicRatio = UtilAll.getDiskPartitionSpaceUsedPercent(storePathPhysic);
+                // 磁盘使用率大于警告阈值
                 if (physicRatio > diskSpaceWarningLevelRatio) {
                     boolean diskok = DefaultMessageStore.this.runningFlags.getAndMakeDiskFull();
                     if (diskok) {
                         DefaultMessageStore.log.error("physic disk maybe full soon " + physicRatio + ", so mark disk full");
                     }
-
                     cleanImmediately = true;
+                    // diskSpaceCleanForciblyRatio:强制清除阈值,默认0.85
                 } else if (physicRatio > diskSpaceCleanForciblyRatio) {
                     cleanImmediately = true;
                 } else {

@@ -124,7 +124,7 @@ public class MappedFileQueue {
 
         this.deleteExpiredFile(willRemoveFiles);
     }
-
+    // 清理过期文件对应内存文件
     void deleteExpiredFile(List<MappedFile> files) {
 
         if (!files.isEmpty()) {
@@ -336,7 +336,7 @@ public class MappedFileQueue {
 
         }
     }
-
+    // 清理过期文件的方法
     public int deleteExpiredFileByTime(final long expiredTime,
         final int deleteFilesInterval,
         final long intervalForcibly,
@@ -351,9 +351,12 @@ public class MappedFileQueue {
         List<MappedFile> files = new ArrayList<MappedFile>();
         if (null != mfs) {
             for (int i = 0; i < mfsLength; i++) {
+                // 遍历文件
                 MappedFile mappedFile = (MappedFile) mfs[i];
+
                 long liveMaxTimestamp = mappedFile.getLastModifiedTimestamp() + expiredTime;
                 if (System.currentTimeMillis() >= liveMaxTimestamp || cleanImmediately) {
+                    // 超过72小时  给干掉 物理文件
                     if (mappedFile.destroy(intervalForcibly)) {
                         files.add(mappedFile);
                         deleteCount++;
@@ -377,7 +380,7 @@ public class MappedFileQueue {
                 }
             }
         }
-
+        // 清理对应内存文件
         deleteExpiredFile(files);
 
         return deleteCount;

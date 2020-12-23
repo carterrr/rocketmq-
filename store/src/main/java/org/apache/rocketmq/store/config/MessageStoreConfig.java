@@ -301,6 +301,7 @@ public class MessageStoreConfig {
         this.deleteWhen = deleteWhen;
     }
 
+    // 磁盘空间占比返回
     public int getDiskMaxUsedSpaceRatio() {
         if (this.diskMaxUsedSpaceRatio < 10)
             return 10;
