@@ -713,6 +713,7 @@ public class MQClientAPIImpl {
         RemotingCommand request = RemotingCommand.createRequestCommand(RequestCode.PULL_MESSAGE, requestHeader);
 
         switch (communicationMode) {
+            // oneway | async 都直接返回null
             case ONEWAY:
                 assert false;
                 return null;
@@ -720,6 +721,7 @@ public class MQClientAPIImpl {
                 this.pullMessageAsync(addr, request, timeoutMillis, pullCallback);
                 return null;
             case SYNC:
+                // 同步拉取方法 结果返回到  PullCallback 中
                 return this.pullMessageSync(addr, request, timeoutMillis);
             default:
                 assert false;
@@ -743,6 +745,7 @@ public class MQClientAPIImpl {
                     try {
                         PullResult pullResult = MQClientAPIImpl.this.processPullResponse(response);
                         assert pullResult != null;
+                        // 放到pullCallback 中
                         pullCallback.onSuccess(pullResult);
                     } catch (Exception e) {
                         pullCallback.onException(e);
@@ -768,9 +771,10 @@ public class MQClientAPIImpl {
     ) throws RemotingException, InterruptedException, MQBrokerException {
         RemotingCommand response = this.remotingClient.invokeSync(addr, request, timeoutMillis);
         assert response != null;
+        // 处理返回结果
         return this.processPullResponse(response);
     }
-
+    // consumer处理响应结果的方法
     private PullResult processPullResponse(
         final RemotingCommand response) throws MQBrokerException, RemotingCommandException {
         PullStatus pullStatus = PullStatus.NO_NEW_MSG;
@@ -791,10 +795,10 @@ public class MQClientAPIImpl {
             default:
                 throw new MQBrokerException(response.getCode(), response.getRemark());
         }
-
+        // 处理响应头
         PullMessageResponseHeader responseHeader =
             (PullMessageResponseHeader) response.decodeCommandCustomHeader(PullMessageResponseHeader.class);
-
+        // 封装结果类  PullResultExt  返回到  pullCallBack 中
         return new PullResultExt(pullStatus, responseHeader.getNextBeginOffset(), responseHeader.getMinOffset(),
             responseHeader.getMaxOffset(), null, responseHeader.getSuggestWhichBrokerId(), response.getBody());
     }
