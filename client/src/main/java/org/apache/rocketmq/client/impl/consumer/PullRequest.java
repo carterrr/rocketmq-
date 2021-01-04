@@ -19,10 +19,19 @@ package org.apache.rocketmq.client.impl.consumer;
 import org.apache.rocketmq.common.message.MessageQueue;
 
 public class PullRequest {
+    // 消费者组
     private String consumerGroup;
+    // 待拉取消息队列
     private MessageQueue messageQueue;
+    // 消息处理队列
+    // ##重点注意⚠️ processQueue是  messageQueue 在消费端的快照
+    // pullMessageService 从消息服务器默认每次拉取32条消息按照偏移量顺序转移到ProcessQueue中，
+    // 再从原messageQueue中清除这32条消息  便于不阻塞 下次拉取
+    // pullMessageService将这些消息提交到消费者消费线程池，消费成功后从 processQueue 中删除
     private ProcessQueue processQueue;
+    // 待拉取的messageQUeue偏移量
     private long nextOffset;
+    // 是否被锁定
     private boolean lockedFirst = false;
 
     public boolean isLockedFirst() {
