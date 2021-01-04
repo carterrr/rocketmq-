@@ -651,7 +651,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
                         + "] has been created before, specify another name please." + FAQUrl.suggestTodo(FAQUrl.GROUP_NAME_DUPLICATE_URL),
                         null);
                 }
-                // 启动客户端  MQClientInstance  其中有启动pullMessageService.run 的方法
+                // 启动客户端  MQClientInstance  其中有启动pullMessageService.run 的方法  从broker拉取消息
                 mQClientFactory.start();
                 log.info("the consumer [{}] start OK.", this.defaultMQPushConsumer.getConsumerGroup());
                 this.serviceState = ServiceState.RUNNING;
