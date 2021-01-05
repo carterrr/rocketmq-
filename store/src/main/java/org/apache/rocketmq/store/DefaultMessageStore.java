@@ -270,6 +270,7 @@ public class DefaultMessageStore implements MessageStore {
             }
             log.info("[SetReputOffset] maxPhysicalPosInLogicQueue={} clMinOffset={} clMaxOffset={} clConfirmedOffset={}",
                 maxPhysicalPosInLogicQueue, this.commitLog.getMinOffset(), this.commitLog.getMaxOffset(), this.commitLog.getConfirmOffset());
+            // 也是长轮询入口 ⚠️
             this.reputMessageService.setReputFromOffset(maxPhysicalPosInLogicQueue);
             // 启动分发任务处理
             // 准实时转发commitLog文件更新事件触发 更新 consumerqueue indexFile 文件
@@ -1975,9 +1976,13 @@ public class DefaultMessageStore implements MessageStore {
                                 if (size > 0) {
                                     // 转发每条消息
                                     DefaultMessageStore.this.doDispatch(dispatchRequest);
-
+                                    // 是主节点
                                     if (BrokerRole.SLAVE != DefaultMessageStore.this.getMessageStoreConfig().getBrokerRole()
                                         && DefaultMessageStore.this.brokerConfig.isLongPollingEnable()) {
+                                        // 给消息到达监听器 NotifyMessageArrivingListener 对象调用 arriving 方法
+                                        // 提高消息被处理的实时性
+                                        // 最终调用到pullRequestHoldService.notifyMessageArriving(topic, queueId, logicOffset, tagsCode,
+                                        //            msgStoreTime, filterBitMap, properties);
                                         DefaultMessageStore.this.messageArrivingListener.arriving(dispatchRequest.getTopic(),
                                             dispatchRequest.getQueueId(), dispatchRequest.getConsumeQueueOffset() + 1,
                                             dispatchRequest.getTagsCode(), dispatchRequest.getStoreTimestamp(),
@@ -2033,6 +2038,7 @@ public class DefaultMessageStore implements MessageStore {
                 try {
                     Thread.sleep(1);
                     // 启动调用
+                    // 当中也为了消息的实时性 加入了消息到达触发消息拉取服务检查
                     this.doReput();
                 } catch (Exception e) {
                     DefaultMessageStore.log.warn(this.getServiceName() + " service has exception. ", e);

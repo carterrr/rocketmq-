@@ -282,7 +282,7 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
             } else {
                 responseHeader.setSuggestWhichBrokerId(MixAll.MASTER_ID);
             }
-
+            // 判断broker返回的结果状态  设置到 response中
             switch (getMessageResult.getStatus()) {
                 case FOUND:
                     response.setCode(ResponseCode.SUCCESS);
@@ -374,7 +374,7 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
 
                 this.executeConsumeMessageHookBefore(context);
             }
-
+            // 检查返回结果状态
             switch (response.getCode()) {
                 case ResponseCode.SUCCESS:
 
@@ -413,9 +413,11 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
                         response = null;
                     }
                     break;
+                    // 消息未找到
                 case ResponseCode.PULL_NOT_FOUND:
-
+                    // 是否开启长轮询机制  brokerAllowSuspend 在85行中传入的是true
                     if (brokerAllowSuspend && hasSuspendFlag) {
+                        // 拿到拉取时间
                         long pollingTimeMills = suspendTimeoutMillisLong;
                         if (!this.brokerController.getBrokerConfig().isLongPollingEnable()) {
                             pollingTimeMills = this.brokerController.getBrokerConfig().getShortPollingTimeMills();
@@ -424,8 +426,10 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
                         String topic = requestHeader.getTopic();
                         long offset = requestHeader.getQueueOffset();
                         int queueId = requestHeader.getQueueId();
+                        // 重新封装了一个拉取请求
                         PullRequest pullRequest = new PullRequest(request, channel, pollingTimeMills,
                             this.brokerController.getMessageStore().now(), offset, subscriptionData, messageFilter);
+                        // 将新的请求 ManyPullRequest 对象放到map中  通过 pullRequestHoldService 对象的run方法
                         this.brokerController.getPullRequestHoldService().suspendPullRequest(topic, queueId, pullRequest);
                         response = null;
                         break;
@@ -589,6 +593,7 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
                 }
             }
         };
+        // 唤醒对应客户端处理
         this.brokerController.getPullMessageExecutor().submit(new RequestTask(run, channel, request));
     }
 
