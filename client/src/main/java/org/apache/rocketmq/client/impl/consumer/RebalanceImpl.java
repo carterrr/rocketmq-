@@ -219,6 +219,7 @@ public abstract class RebalanceImpl {
             for (final Map.Entry<String, SubscriptionData> entry : subTable.entrySet()) {
                 final String topic = entry.getKey();
                 try {
+                    //  根据每个主题重新负载
                     this.rebalanceByTopic(topic, isOrder);
                 } catch (Throwable e) {
                     if (!topic.startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
@@ -240,6 +241,7 @@ public abstract class RebalanceImpl {
             case BROADCASTING: {
                 Set<MessageQueue> mqSet = this.topicSubscribeInfoTable.get(topic);
                 if (mqSet != null) {
+                    // 广播模式只更新下队列信息
                     boolean changed = this.updateProcessQueueTableInRebalance(topic, mqSet, isOrder);
                     if (changed) {
                         this.messageQueueChanged(topic, mqSet, mqSet);
@@ -255,7 +257,9 @@ public abstract class RebalanceImpl {
                 break;
             }
             case CLUSTERING: {
+                // 拿到主题topic对应的队列  才能分给不同消费者
                 Set<MessageQueue> mqSet = this.topicSubscribeInfoTable.get(topic);
+                // 拿到主题topic对应的所有消费者consumer
                 List<String> cidAll = this.mQClientFactory.findConsumerIdList(topic, consumerGroup);
                 if (null == mqSet) {
                     if (!topic.startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
@@ -270,14 +274,19 @@ public abstract class RebalanceImpl {
                 if (mqSet != null && cidAll != null) {
                     List<MessageQueue> mqAll = new ArrayList<MessageQueue>();
                     mqAll.addAll(mqSet);
-
+                    // 对 队列/所有消费者consumer 两者进行排序
                     Collections.sort(mqAll);
                     Collections.sort(cidAll);
-
+                    // 根据负载均衡策略进行重新分布
                     AllocateMessageQueueStrategy strategy = this.allocateMessageQueueStrategy;
 
                     List<MessageQueue> allocateResult = null;
                     try {
+                        // ctrl 点击 allocate（）可以看到有6种负载均衡策略
+                        //  队列 1-8  消费者 a-c
+                        // 常用 AllocateMessageQueueAveragely           平均分配 a：123 b:456 c:78
+                        //      AllocateMessageQueueAveragelyByCircle   平均轮询分配  a:147 b:258 c:36
+                        // 但是 如果消费者数量大于队列数量 为防止重复消费  会有一些消费者不消费队列
                         allocateResult = strategy.allocate(
                             this.consumerGroup,
                             this.mQClientFactory.getClientId(),

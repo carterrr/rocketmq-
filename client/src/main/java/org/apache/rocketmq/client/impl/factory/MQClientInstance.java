@@ -239,6 +239,7 @@ public class MQClientInstance {
                     // 启动消息拉取服务
                     this.pullMessageService.start();
                     // Start rebalance service
+                    // 启动负载均衡服务
                     this.rebalanceService.start();
                     // Start push service
                     this.defaultMQProducer.getDefaultMQProducerImpl().start(false);
@@ -977,10 +978,13 @@ public class MQClientInstance {
     }
 
     public void doRebalance() {
+        // 遍历每个主题订阅的队列进行重新负载均衡
         for (Map.Entry<String, MQConsumerInner> entry : this.consumerTable.entrySet()) {
             MQConsumerInner impl = entry.getValue();
             if (impl != null) {
                 try {
+                    // 针对每一个消费方impl对象重新负载
+                    // DefaultMQPushConsumerImpl / DefaultMQPullConsumerImpl是  MQConsumerInner子类
                     impl.doRebalance();
                 } catch (Throwable e) {
                     log.error("doRebalance exception", e);

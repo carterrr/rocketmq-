@@ -194,6 +194,7 @@ public class DefaultMessageStore implements MessageStore {
             log.info("last shutdown {}", lastExitOK ? "normally" : "abnormally");
 
             if (null != scheduleMessageService) {
+                // 构造定时消息处理服务  消息消费进度及delayLevelTable  延迟消息消费进度存储路径为 /store/config/delayOffset.json
                 result = result && this.scheduleMessageService.load();
             }
 
@@ -289,7 +290,7 @@ public class DefaultMessageStore implements MessageStore {
             }
             this.recoverTopicQueueTable();
         }
-
+        // 默认 ！false  启动haservice高可用服务 及 定时消息处理服务
         if (!messageStoreConfig.isEnableDLegerCommitLog()) {
             this.haService.start();
             this.handleScheduleMessageService(messageStoreConfig.getBrokerRole());

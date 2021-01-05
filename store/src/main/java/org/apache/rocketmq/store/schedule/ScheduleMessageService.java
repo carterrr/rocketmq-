@@ -113,19 +113,22 @@ public class ScheduleMessageService extends ConfigManager {
     public void start() {
         if (started.compareAndSet(false, true)) {
             this.timer = new Timer("ScheduleMessageTimerThread", true);
+            // 拿到定时队列中偏移量
             for (Map.Entry<Integer, Long> entry : this.delayLevelTable.entrySet()) {
                 Integer level = entry.getKey();
                 Long timeDelay = entry.getValue();
                 Long offset = this.offsetTable.get(level);
                 if (null == offset) {
+                    // 偏移量为空设置为0方便时间到了去取消息
                     offset = 0L;
                 }
 
                 if (timeDelay != null) {
+                    // 时间到了执行任务
                     this.timer.schedule(new DeliverDelayedMessageTimerTask(level, offset), FIRST_DELAY_TIME);
                 }
             }
-
+            // 为了保证数据安全性 每隔10秒将当前任务持久化到磁盘 保证消息不丢失
             this.timer.scheduleAtFixedRate(new TimerTask() {
 
                 @Override
@@ -188,7 +191,7 @@ public class ScheduleMessageService extends ConfigManager {
         delayOffsetSerializeWrapper.setOffsetTable(this.offsetTable);
         return delayOffsetSerializeWrapper.toJson(prettyFormat);
     }
-
+    // 处理延迟 时间等级
     public boolean parseDelayLevel() {
         HashMap<String, Long> timeUnitTable = new HashMap<String, Long>();
         timeUnitTable.put("s", 1000L);
@@ -234,6 +237,7 @@ public class ScheduleMessageService extends ConfigManager {
         public void run() {
             try {
                 if (isStarted()) {
+                    // 时间到了执行任务
                     this.executeOnTimeup();
                 }
             } catch (Exception e) {
@@ -260,6 +264,7 @@ public class ScheduleMessageService extends ConfigManager {
         }
 
         public void executeOnTimeup() {
+            // 拿到消费队列
             ConsumeQueue cq =
                 ScheduleMessageService.this.defaultMessageStore.findConsumeQueue(TopicValidator.RMQ_SYS_SCHEDULE_TOPIC,
                     delayLevel2QueueId(delayLevel));
@@ -267,12 +272,14 @@ public class ScheduleMessageService extends ConfigManager {
             long failScheduleOffset = offset;
 
             if (cq != null) {
+                // 依据偏移量从队列取出消息
                 SelectMappedBufferResult bufferCQ = cq.getIndexBuffer(this.offset);
                 if (bufferCQ != null) {
                     try {
                         long nextOffset = offset;
                         int i = 0;
                         ConsumeQueueExt.CqExtUnit cqExtUnit = new ConsumeQueueExt.CqExtUnit();
+                        // 针对每个消息
                         for (; i < bufferCQ.getSize(); i += ConsumeQueue.CQ_STORE_UNIT_SIZE) {
                             long offsetPy = bufferCQ.getByteBuffer().getLong();
                             int sizePy = bufferCQ.getByteBuffer().getInt();
@@ -298,6 +305,7 @@ public class ScheduleMessageService extends ConfigManager {
                             long countdown = deliverTimestamp - now;
 
                             if (countdown <= 0) {
+                                // 封装一个  MessageExt 对象
                                 MessageExt msgExt =
                                     ScheduleMessageService.this.defaultMessageStore.lookMessageByOffset(
                                         offsetPy, sizePy);
@@ -310,6 +318,8 @@ public class ScheduleMessageService extends ConfigManager {
                                                     msgInner.getTopic(), msgInner);
                                             continue;
                                         }
+                                        // 将由  MessageExt 转换来的 MessageExtBrokerInner对象 写到 writeMessageStore 中（其实就是DefaultMessageStore）
+                                        // 其实就是时间到了 写入到正常的队列中让消费者消费
                                         PutMessageResult putMessageResult =
                                             ScheduleMessageService.this.writeMessageStore
                                                 .putMessage(msgInner);
