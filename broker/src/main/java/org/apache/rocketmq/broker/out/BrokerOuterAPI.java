@@ -126,23 +126,23 @@ public class BrokerOuterAPI {
         final List<RegisterBrokerResult> registerBrokerResultList = Lists.newArrayList();
         List<String> nameServerAddressList = this.remotingClient.getNameServerAddressList();
         if (nameServerAddressList != null && nameServerAddressList.size() > 0) {
-            // 构造请求头
+            // 3. 构造请求头
             final RegisterBrokerRequestHeader requestHeader = new RegisterBrokerRequestHeader();
             requestHeader.setBrokerAddr(brokerAddr);
             requestHeader.setBrokerId(brokerId);
             requestHeader.setBrokerName(brokerName);
             requestHeader.setClusterName(clusterName);
-            requestHeader.setHaServerAddr(haServerAddr);
+            requestHeader.setHaServerAddr(haServerAddr);// 主节点地址 初次请求为空 从节点向nameserver发心跳包后返回
             requestHeader.setCompressed(compressed);
-            // 构造请求体
+            // 4. 构造请求体
             RegisterBrokerBody requestBody = new RegisterBrokerBody();
-            requestBody.setTopicConfigSerializeWrapper(topicConfigWrapper);
-            requestBody.setFilterServerList(filterServerList);
+            requestBody.setTopicConfigSerializeWrapper(topicConfigWrapper);// topic 信息
+            requestBody.setFilterServerList(filterServerList); // 消息过滤服务器列表
             final byte[] body = requestBody.encode(compressed);
             final int bodyCrc32 = UtilAll.crc32(body);
             requestHeader.setBodyCrc32(bodyCrc32);
             final CountDownLatch countDownLatch = new CountDownLatch(nameServerAddressList.size());
-            // 遍历conf中写的namesrv地址  分别注册本broker信息
+            // 5. 遍历namesrv地址  通过nettyclient分别注册broker自身的信息
             for (final String namesrvAddr : nameServerAddressList) {
                 brokerOuterExecutor.execute(new Runnable() {
                     @Override

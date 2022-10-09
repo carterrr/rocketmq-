@@ -78,7 +78,7 @@ public class NamesrvStartup {
             System.exit(-1);
             return null;
         }
-        // MARK 创建两个配置类
+        // step1 创建两个配置类  并用 -c 配置文件 和 -p 命令行配置 覆盖配置类的配置
         final NamesrvConfig namesrvConfig = new NamesrvConfig();
         final NettyServerConfig nettyServerConfig = new NettyServerConfig();
         nettyServerConfig.setListenPort(9876);
@@ -138,13 +138,13 @@ public class NamesrvStartup {
         if (null == controller) {
             throw new IllegalArgumentException("NamesrvController is null");
         }
-
+        // step2 启动NameserverController  创建nettyserver 并 启动10s一次的broker扫描  10min一次的 kv配置打印
         boolean initResult = controller.initialize();
         if (!initResult) {
             controller.shutdown();
             System.exit(-3);
         }
-        // 注册钩子方法  jvm关闭时释放资源 如关闭线程池
+        // step3 注册钩子方法 在jvm关闭时关闭nameserver相关资源 如线程池
         Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(log, new Callable<Void>() {
             @Override
             public Void call() throws Exception {

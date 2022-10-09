@@ -83,7 +83,7 @@ public class NamesrvController {
             Executors.newFixedThreadPool(nettyServerConfig.getServerWorkerThreads(), new ThreadFactoryImpl("RemotingExecutorThread_"));
         // 将线程池注册到nettyserver
         this.registerProcessor();
-        // 启动5秒后每隔10秒 关闭120秒内未上送信息的不活跃broker链接
+        // 1.  启动5秒后每隔10秒 关闭120秒内未上送信息的不活跃broker链接
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override
