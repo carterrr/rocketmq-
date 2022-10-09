@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="rocketmq-client" />
+        <module name="rocketmq-store" />
+        <module name="rocketmq-openmessaging" />
+        <module name="rocketmq-logging" />
+        <module name="rocketmq-logappender" />
+        <module name="rocketmq-acl" />
+        <module name="rocketmq-common" />
+        <module name="rocketmq-broker" />
+        <module name="rocketmq-test" />
+        <module name="rocketmq-srvutil" />
+        <module name="rocketmq-remoting" />
+        <module name="rocketmq-filter" />
+        <module name="rocketmq-tools" />
+        <module name="rocketmq-namesrv" />
+        <module name="rocketmq-example" />
+      </profile>
+    </annotationProcessing>
+  </component>
+</project>
