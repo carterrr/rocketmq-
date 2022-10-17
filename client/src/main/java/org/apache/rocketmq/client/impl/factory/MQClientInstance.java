@@ -268,7 +268,7 @@ public class MQClientInstance {
                 }
             }, 1000 * 10, 1000 * 60 * 2, TimeUnit.MILLISECONDS);
         }
-
+        // 1. 生产者消费者定时查询nameserver上的topic信息  注意这个类在生产者消费者中都会调用start方法
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override
@@ -355,7 +355,7 @@ public class MQClientInstance {
                 }
             }
         }
-
+        // 2. 遍历所有producer关联的topic  更新topic的路由信息
         for (String topic : topicList) {
             this.updateTopicRouteInfoFromNameServer(topic);
         }
@@ -610,7 +610,7 @@ public class MQClientInstance {
             if (this.lockNamesrv.tryLock(LOCK_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
                 try {
                     TopicRouteData topicRouteData;
-                    // 默认主题
+                    // 查询默认主题  的topic路由信息 充当自身的路由信息  因为发送消息时会创建topic
                     if (isDefault && defaultMQProducer != null) {
                         topicRouteData = this.mQClientAPIImpl.getDefaultTopicRouteInfoFromNameServer(defaultMQProducer.getCreateTopicKey(),
                             1000 * 3);
@@ -647,7 +647,7 @@ public class MQClientInstance {
 
                             // Update Pub info
                             {
-                                // routeData  -》 publishInfo
+                                // routeData  -》 publishInfo 转换并存储到topicPublishInfoTable中
                                 TopicPublishInfo publishInfo = topicRouteData2TopicPublishInfo(topic, topicRouteData);
                                 publishInfo.setHaveTopicRouterInfo(true);
                                 Iterator<Entry<String, MQProducerInner>> it = this.producerTable.entrySet().iterator();

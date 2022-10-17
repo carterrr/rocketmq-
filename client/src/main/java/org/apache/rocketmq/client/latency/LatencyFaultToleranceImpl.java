@@ -55,7 +55,7 @@ public class LatencyFaultToleranceImpl implements LatencyFaultTolerance<String> 
         if (faultItem != null) {
             return faultItem.isAvailable();
         }
-        return true;
+        return true; // faultItemTable 存储失败的broker列表  如果不存在在里边 说明该broker是正常的
     }
 
     @Override

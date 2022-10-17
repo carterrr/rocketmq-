@@ -166,7 +166,7 @@ public class TopicConfigManager extends ConfigManager {
                         return topicConfig;
 
                     TopicConfig defaultTopicConfig = this.topicConfigTable.get(defaultTopic);
-                    if (defaultTopicConfig != null) {
+                    if (defaultTopicConfig != null) {// topic 是创建topic的topic
                         if (defaultTopic.equals(TopicValidator.AUTO_CREATE_TOPIC_KEY_TOPIC)) {
                             if (!this.brokerController.getBrokerConfig().isAutoCreateTopicEnable()) {
                                 defaultTopicConfig.setPerm(PermName.PERM_READ | PermName.PERM_WRITE);

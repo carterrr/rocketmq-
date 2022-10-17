@@ -394,6 +394,7 @@ public class RouteInfoManager {
             try {
                 // 同步更新路由信息  读锁！！！
                 this.lock.readLock().lockInterruptibly();
+                // 4. 分别从topicQueueTable，brokerAddrTable，filterServerTable取出queue信息 broker信息 消息过滤服务器信息返回
                 List<QueueData> queueDataList = this.topicQueueTable.get(topic);
                 if (queueDataList != null) {
                     topicRouteData.setQueueDatas(queueDataList);

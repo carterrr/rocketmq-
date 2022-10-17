@@ -270,10 +270,11 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
      * @throws MQClientException if there is any unexpected error.
      */
     @Override
+    // 1. 生产者启动方法 defaultProducer只是一个客户端 继承了MQAdmin 包含了一些topic  offset  message的操作，真正的客户端启动是下面的impl的启动
     public void start() throws MQClientException {
         // 设置组名
         this.setProducerGroup(withNamespace(this.producerGroup));
-        // 启动 defaultMQProducerImpl  真正的启动
+        // defaultMQProducerImpl  真正的启动
         this.defaultMQProducerImpl.start();
         if (null != traceDispatcher) {
             try {
@@ -898,7 +899,7 @@ public class DefaultMQProducer extends ClientConfig implements MQProducer {
         return this.defaultMQProducerImpl.queryMessageByUniqKey(withNamespace(topic), msgId);
     }
 
-    // 批量消息发送前打包成一条后复用原单条发送逻辑
+    // 1. 批量消息发送前打包成一条后复用原单条发送逻辑
     @Override
     public SendResult send(
         Collection<Message> msgs) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {

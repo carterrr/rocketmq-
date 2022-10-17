@@ -232,6 +232,7 @@ public class IndexService {
             }
 
             if (keys != null && keys.length() > 0) {
+                // 注意  keys可以用多个  这里用空格分割
                 String[] keyset = keys.split(MessageConst.KEY_SEPARATOR);
                 for (int i = 0; i < keyset.length; i++) {
                     String key = keyset[i];

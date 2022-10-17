@@ -489,8 +489,10 @@ public class DefaultMessageStore implements MessageStore {
         return resultFuture;
     }
 
+
     @Override
     public PutMessageResult putMessage(MessageExtBrokerInner msg) {
+        // 5. 检查各种状态 broker是否启动、支持写入 topic是否过长 消息属性是否过长 磁盘空间是否足够
         PutMessageStatus checkStoreStatus = this.checkStoreStatus();
         if (checkStoreStatus != PutMessageStatus.PUT_OK) {
             return new PutMessageResult(checkStoreStatus, null);

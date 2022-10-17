@@ -204,11 +204,11 @@ public class MappedFile extends ReferenceResource {
     public AppendMessageResult appendMessagesInner(final MessageExt messageExt, final AppendMessageCallback cb) {
         assert messageExt != null;
         assert cb != null;
-        // 拿到写指针  从写指针开始往后写
+        // 9. 拿到写指针  从写指针开始往后写 写指针比文件大小小 才可以写 否则就是已经写满了
         int currentPos = this.wrotePosition.get();
-        // 写指针比文件大小小 才可以写 否则写错误
+
         if (currentPos < this.fileSize) {
-            // 消息写到堆外缓冲区
+            // 消息写到堆外缓冲区  slice()方法会复制一个 ByteBuffer对象出来
             ByteBuffer byteBuffer = writeBuffer != null ? writeBuffer.slice() : this.mappedByteBuffer.slice();
             byteBuffer.position(currentPos);
             AppendMessageResult result;

@@ -90,6 +90,7 @@ public class IndexFile {
     }
 
     public boolean putKey(final String key, final long phyOffset, final long storeTimestamp) {
+        // indexNum传参固定2000_0000 大于等于就是写满了这个index文件  也就是最多通过拉链法的方式装2千万个索引  到500万个哈希槽中
         if (this.indexHeader.getIndexCount() < this.indexNum) {
             int keyHash = indexKeyHashMethod(key);
             int slotPos = keyHash % this.hashSlotNum;
@@ -101,9 +102,10 @@ public class IndexFile {
 
                 // fileLock = this.fileChannel.lock(absSlotPos, hashSlotSize,
                 // false);
+                //
                 int slotValue = this.mappedByteBuffer.getInt(absSlotPos);
                 if (slotValue <= invalidIndex || slotValue > this.indexHeader.getIndexCount()) {
-                    slotValue = invalidIndex;
+                    slotValue = invalidIndex; // 对应槽中无效数据重置
                 }
 
                 long timeDiff = storeTimestamp - this.indexHeader.getBeginTimestamp();
@@ -119,15 +121,15 @@ public class IndexFile {
                 }
 
                 int absIndexPos =
-                    IndexHeader.INDEX_HEADER_SIZE + this.hashSlotNum * hashSlotSize
+                    IndexHeader.INDEX_HEADER_SIZE + this.hashSlotNum * hashSlotSize  // 40 + 5000000 * 4 + indexCnt * indexSize
                         + this.indexHeader.getIndexCount() * indexSize;
 
                 this.mappedByteBuffer.putInt(absIndexPos, keyHash);
                 this.mappedByteBuffer.putLong(absIndexPos + 4, phyOffset);
                 this.mappedByteBuffer.putInt(absIndexPos + 4 + 8, (int) timeDiff);
-                this.mappedByteBuffer.putInt(absIndexPos + 4 + 8 + 4, slotValue);
-
-                this.mappedByteBuffer.putInt(absSlotPos, this.indexHeader.getIndexCount());
+                this.mappedByteBuffer.putInt(absIndexPos + 4 + 8 + 4, slotValue); // 上一条索引的位置
+                // 注意 这里是absSlotPos  而不是上面的absIndexPos
+                this.mappedByteBuffer.putInt(absSlotPos, this.indexHeader.getIndexCount()); // 当前索引的下标位置存储下来
 
                 if (this.indexHeader.getIndexCount() <= 1) {
                     this.indexHeader.setBeginPhyOffset(phyOffset);
@@ -137,7 +139,7 @@ public class IndexFile {
                 if (invalidIndex == slotValue) {
                     this.indexHeader.incHashSlotCount();
                 }
-                this.indexHeader.incIndexCount();
+                this.indexHeader.incIndexCount();   // 更新下一个索引的位置
                 this.indexHeader.setEndPhyOffset(phyOffset);
                 this.indexHeader.setEndTimestamp(storeTimestamp);
 
@@ -235,7 +237,7 @@ public class IndexFile {
                         long timeRead = this.indexHeader.getBeginTimestamp() + timeDiff;
                         boolean timeMatched = (timeRead >= begin) && (timeRead <= end);
 
-                        if (keyHash == keyHashRead && timeMatched) {
+                        if (keyHash == keyHashRead && timeMatched) { // key相同就保存到结果中
                             phyOffsets.add(phyOffsetRead);
                         }
 

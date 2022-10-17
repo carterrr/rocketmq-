@@ -37,7 +37,7 @@ public class Message implements Serializable {
     public Message(String topic, byte[] body) {
         this(topic, "", "", 0, body, true);
     }
-
+    // 0. 消息topic 、用于过滤的消息tag  、消息索引键 用空格个隔开、消息发送时是否等待存储完成才返回
     public Message(String topic, String tags, String keys, int flag, byte[] body, boolean waitStoreMsgOK) {
         this.topic = topic;
         this.flag = flag;
