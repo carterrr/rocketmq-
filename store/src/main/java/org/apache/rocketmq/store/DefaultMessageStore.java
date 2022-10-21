@@ -181,6 +181,7 @@ public class DefaultMessageStore implements MessageStore {
     }
 
     /**
+     * 1. 消息存储到commitlog后宕机 并未异步转发到consumeQueue & index文件时的异常恢复入口  这里保证最终一致性
      * 异步转发  commitlog文件中的消息 到    consumerqueue indexFile 文件 异常的恢复
      * @throws IOException
      */
@@ -246,6 +247,7 @@ public class DefaultMessageStore implements MessageStore {
              * 3. Calculate the reput offset according to the consume queue;
              * 4. Make sure the fall-behind messages to be dispatched before starting the commitlog, especially when the broker role are automatically changed.
              */
+            // 1. 找到consumeQueue中的最大offset 设置为转发commitLog的起始offset
             long maxPhysicalPosInLogicQueue = commitLog.getMinOffset();
             for (ConcurrentMap<Integer, ConsumeQueue> maps : this.consumeQueueTable.values()) {
                 for (ConsumeQueue logic : maps.values()) {
@@ -273,8 +275,7 @@ public class DefaultMessageStore implements MessageStore {
                 maxPhysicalPosInLogicQueue, this.commitLog.getMinOffset(), this.commitLog.getMaxOffset(), this.commitLog.getConfirmOffset());
             // 也是长轮询入口 ⚠️
             this.reputMessageService.setReputFromOffset(maxPhysicalPosInLogicQueue);
-            // 启动分发任务处理
-            // 准实时转发commitLog文件更新事件触发 更新 consumerqueue indexFile 文件
+            // 2. 启动分发任务处理  准实时转发commitLog文件更新事件触发 更新 consumerqueue indexFile 文件
             this.reputMessageService.start();
 
             /**
@@ -1529,7 +1530,7 @@ public class DefaultMessageStore implements MessageStore {
     }
 
     public void putMessagePositionInfo(DispatchRequest dispatchRequest) {
-        // 通过主题和队列id拿到队列
+        // 7. 通过主题和broker队列id 拿到consumeQueue队列
         ConsumeQueue cq = this.findConsumeQueue(dispatchRequest.getTopic(), dispatchRequest.getQueueId());
         cq.putMessagePositionInfoWrapper(dispatchRequest);
     }
@@ -1585,13 +1586,14 @@ public class DefaultMessageStore implements MessageStore {
 
     class CommitLogDispatcherBuildConsumeQueue implements CommitLogDispatcher {
 
-        // 转发到consumerqueue
+
         @Override
         public void dispatch(DispatchRequest request) {
             final int tranType = MessageSysFlag.getTransactionValue(request.getSysFlag());
             switch (tranType) {
                 case MessageSysFlag.TRANSACTION_NOT_TYPE:
                 case MessageSysFlag.TRANSACTION_COMMIT_TYPE:
+                    // 6. 转发到consumequeue
                     DefaultMessageStore.this.putMessagePositionInfo(request);
                     break;
                 case MessageSysFlag.TRANSACTION_PREPARED_TYPE:
@@ -1605,7 +1607,8 @@ public class DefaultMessageStore implements MessageStore {
 
         @Override
         public void dispatch(DispatchRequest request) {
-            if (DefaultMessageStore.this.messageStoreConfig.isMessageIndexEnable()) {
+            if (DefaultMessageStore.this.messageStoreConfig.isMessageIndexEnable()) { // 可以配置不转发
+                // 10. 转发到index文件
                 DefaultMessageStore.this.indexService.buildIndex(request);
             }
         }
@@ -1951,7 +1954,7 @@ public class DefaultMessageStore implements MessageStore {
         }
 
         private void doReput() {
-            // 找到转发起始偏移量
+            // 修正转发起始偏移量
             if (this.reputFromOffset < DefaultMessageStore.this.commitLog.getMinOffset()) {
                 log.warn("The reputFromOffset={} is smaller than minPyOffset={}, this usually indicate that the dispatch behind too much and the commitlog has expired.",
                     this.reputFromOffset, DefaultMessageStore.this.commitLog.getMinOffset());
@@ -1959,25 +1962,25 @@ public class DefaultMessageStore implements MessageStore {
             }
             for (boolean doNext = true; this.isCommitLogAvailable() && doNext; ) {
 
-                if (DefaultMessageStore.this.getMessageStoreConfig().isDuplicationEnable()
+                if (DefaultMessageStore.this.getMessageStoreConfig().isDuplicationEnable() // 可重复转发
                     && this.reputFromOffset >= DefaultMessageStore.this.getConfirmOffset()) {
                     break;
                 }
-                // 拿到多条数据
+                // 4. 拿到从reputFromOffset开始的全部有效数据  进行逐条遍历
                 SelectMappedBufferResult result = DefaultMessageStore.this.commitLog.getData(reputFromOffset);
                 if (result != null) {
                     try {
                         this.reputFromOffset = result.getStartOffset();
                         // 遍历每一条消息
                         for (int readSize = 0; readSize < result.getSize() && doNext; ) {
-
+                            // 生成转发请求对象
                             DispatchRequest dispatchRequest =
                                 DefaultMessageStore.this.commitLog.checkMessageAndReturnSize(result.getByteBuffer(), false, false);
                             int size = dispatchRequest.getBufferSize() == -1 ? dispatchRequest.getMsgSize() : dispatchRequest.getBufferSize();
 
                             if (dispatchRequest.isSuccess()) {
                                 if (size > 0) {
-                                    // 转发每条消息
+                                    // 5. 转发每条消息 组合模式通过两个dispatcher来转发dispatchRequest
                                     DefaultMessageStore.this.doDispatch(dispatchRequest);
                                     // 是主节点
                                     if (BrokerRole.SLAVE != DefaultMessageStore.this.getMessageStoreConfig().getBrokerRole()
@@ -2040,8 +2043,7 @@ public class DefaultMessageStore implements MessageStore {
             while (!this.isStopped()) {
                 try {
                     Thread.sleep(1);
-                    // 启动调用
-                    // 当中也为了消息的实时性 加入了消息到达触发消息拉取服务检查
+                    // 3. 每隔1毫秒 执行一次真正的转发方法
                     this.doReput();
                 } catch (Exception e) {
                     DefaultMessageStore.log.warn(this.getServiceName() + " service has exception. ", e);

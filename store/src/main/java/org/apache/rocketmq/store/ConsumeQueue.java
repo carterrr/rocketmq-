@@ -431,15 +431,15 @@ public class ConsumeQueue {
             log.warn("Maybe try to build consume queue repeatedly maxPhysicOffset={} phyOffset={}", maxPhysicOffset, offset);
             return true;
         }
-        // 向byteBUffer  追加偏移量 消息长度 tag  组装要追加到commitlog文件中的数据
-        this.byteBufferIndex.flip();
+        // 8. 向byteBUffer  追加偏移量 消息长度 tag  组装要追加到consumeQueue文件中的数据
+        this.byteBufferIndex.flip();  // 重置byteBufferIndex
         this.byteBufferIndex.limit(CQ_STORE_UNIT_SIZE);
         this.byteBufferIndex.putLong(offset);
         this.byteBufferIndex.putInt(size);
         this.byteBufferIndex.putLong(tagsCode);
 
         final long expectLogicOffset = cqOffset * CQ_STORE_UNIT_SIZE;
-        // 获得commitlog队列最新一个内存映射所在的mappedFile 文件  消费队列内存映射对应commitlog文件夹  其中有多个mappedFile文件
+        // 获得consumeQueue文件夹下最对应offset最后一次出现所在的mappedFile 文件  其中有多个mappedFile文件
         MappedFile mappedFile = this.mappedFileQueue.getLastMappedFile(expectLogicOffset);
         if (mappedFile != null) {
 
@@ -473,7 +473,7 @@ public class ConsumeQueue {
                 }
             }
             this.maxPhysicOffset = offset + size;
-            // 通过mappedFile追加数据
+            // 9. 通过mappedFile追加数据 注意 只追加到内存 并不刷盘
             return mappedFile.appendMessage(this.byteBufferIndex.array());
         }
         return false;

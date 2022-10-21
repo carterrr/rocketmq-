@@ -200,15 +200,15 @@ public class IndexService {
 
     // 转发commitlog到索引文件的方法
     public void buildIndex(DispatchRequest req) {
-        // 拿到索引文件
+        // 11. 获取或者创建索引文件
         IndexFile indexFile = retryGetAndCreateIndexFile();
         if (indexFile != null) {
-            // 获得索引文件最大偏移量 endPhyOffset
+            // 12. 获得索引文件最大偏移量 endPhyOffset  排除重复转发的情况
             long endPhyOffset = indexFile.getEndPhyOffset();
             DispatchRequest msg = req;
             String topic = msg.getTopic();
             String keys = msg.getKeys();
-            // 消息偏移量 小于 物理文件最大偏移量 重复转发
+            // 消息偏移量 小于 物理文件最大偏移量 说明该offset对应的一条数据之前已经转发过了
             if (msg.getCommitLogOffset() < endPhyOffset) {
                 return;
             }
@@ -222,15 +222,16 @@ public class IndexService {
                 case MessageSysFlag.TRANSACTION_ROLLBACK_TYPE:
                     return;
             }
+            // 13. 根据消息id构建索引index  req.getUniqKey()  再将index放到索引文件中（putKey方法完成）
             if (req.getUniqKey() != null) {
-                // 根据消息id构建索引index  req.getUniqKey()  再将index放到索引文件中（putKey方法完成）
+
                 indexFile = putKey(indexFile, msg, buildKey(topic, req.getUniqKey()));
                 if (indexFile == null) {
                     log.error("putKey error commitlog {} uniqkey {}", req.getCommitLogOffset(), req.getUniqKey());
                     return;
                 }
             }
-
+            // 14. 根据自定义业务id构建索引
             if (keys != null && keys.length() > 0) {
                 // 注意  keys可以用多个  这里用空格分割
                 String[] keyset = keys.split(MessageConst.KEY_SEPARATOR);
