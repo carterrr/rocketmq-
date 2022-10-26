@@ -181,7 +181,7 @@ public class DefaultMessageStore implements MessageStore {
     }
 
     /**
-     * 1. 消息存储到commitlog后宕机 并未异步转发到consumeQueue & index文件时的异常恢复入口  这里保证最终一致性
+     * 0. 消息存储到commitlog后宕机 并未异步转发到consumeQueue & index文件时的异常恢复入口  这里保证最终一致性
      * 异步转发  commitlog文件中的消息 到    consumerqueue indexFile 文件 异常的恢复
      * @throws IOException
      */
@@ -189,29 +189,29 @@ public class DefaultMessageStore implements MessageStore {
         boolean result = true;
 
         try {
-            // 判断是否异常关闭  abort文件当rocketmq启动时创建  创建后正常关闭时删除  异常则不会删除
-            // 存在abort文件  则异常关闭
+            // 1. 判断是否异常关闭  如果存在abort文件  则异常关闭  ps ： abort文件当rocketmq启动时创建  创建后正常关闭时删除  异常则不会删除
+            // org.apache.rocketmq.broker.BrokerStartup#240  添加钩子函数  其中在jvm正常关闭时删除文件
             boolean lastExitOK = !this.isTempFileExist();
             log.info("last shutdown {}", lastExitOK ? "normally" : "abnormally");
 
             if (null != scheduleMessageService) {
-                // 构造定时消息处理服务  消息消费进度及delayLevelTable  延迟消息消费进度存储路径为 /store/config/delayOffset.json
+                // 2. 加载磁盘上的延迟队列到本地   延迟消息消费进度存储路径为 /store/config/delayOffset.json
                 result = result && this.scheduleMessageService.load();
             }
 
-            // load Commit Log
+            //  3. 加载store/commitlog 文件夹下的文件并按文件名排序 加载为jvm内存中的mappedfile对象
             result = result && this.commitLog.load();
 
-            // load Consume Queue
+            // 4. 加载消息消费队列store/consumequeue文件夹下的文件  转换为ConsumeQueue对象 到内存中的consumeQueueTable中
             result = result && this.loadConsumeQueue();
 
             if (result) {
-                // 文件检查点在config文件（与commitlog文件夹平级）中  存放上一次转发的位置
+                // 5. 将checkpoint文件 转为内存中的checkpoint对象 用于后续记录刷盘点   文件检查点在config文件（与commitlog文件夹平级）中  存放上一次转发的位置
                 this.storeCheckpoint =
                     new StoreCheckpoint(StorePathConfigHelper.getStoreCheckpoint(this.messageStoreConfig.getStorePathRootDir()));
                 // 加载索引文件
                 this.indexService.load(lastExitOK);
-                // 恢复文件
+                // 7. 重点 ：恢复文件过程
                 this.recover(lastExitOK);
 
                 log.info("load over, and the max phy offset = {}", this.getMaxPhyOffset());
@@ -1428,13 +1428,14 @@ public class DefaultMessageStore implements MessageStore {
     }
 
     private void recover(final boolean lastExitOK) {
+        // 拿到最大消费位置
         long maxPhyOffsetOfConsumeQueue = this.recoverConsumeQueue();
 
         if (lastExitOK) {
-            // 正常恢复
+            // 8. 正常退出恢复
             this.commitLog.recoverNormally(maxPhyOffsetOfConsumeQueue);
         } else {
-            // 异常恢复
+            // 14. 异常退出恢复  与正常恢复流程基本相同 差异 ： 1. 从最后一个commitlog文件倒推找到一个正常的文件而不是从倒数第三个开始 2. 需要转发到consume queue 和 indexfile
             this.commitLog.recoverAbnormally(maxPhyOffsetOfConsumeQueue);
         }
 

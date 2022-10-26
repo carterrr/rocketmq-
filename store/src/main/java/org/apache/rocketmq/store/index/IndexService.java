@@ -62,6 +62,7 @@ public class IndexService {
             Arrays.sort(files);
             for (File file : files) {
                 try {
+                    // 6. 恢复内存中的IndexFile对象  如果上次是异常退出的 且最后保存的index时间戳大于刷盘点   就把对应的indexFile文件删除
                     IndexFile f = new IndexFile(file.getPath(), this.hashSlotNum, this.indexNum, 0, 0);
                     f.load();
 

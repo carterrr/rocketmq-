@@ -6,9 +6,161 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java" />
+              <entry key="line" value="1437" />
+            </attributes>
+            <option name="description" value="// 14. 异常退出恢复  与正常恢复流程基本相同 差异 ： 1. 从最后一个commitlog文件倒推找到一个正常的文件而不是从倒数第三个开始 2. 需要转发到consume queue 和 indexfile" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
+              <entry key="line" value="475" />
+            </attributes>
+            <option name="description" value="// 16.  需要额外做消息转发 转发到 consumequeue 和 indexfile" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
+              <entry key="line" value="451" />
+            </attributes>
+            <option name="description" value="// 15. 判断该commitlog 文件是否正确 找到第一个消息存储正常的文件" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
+              <entry key="line" value="236" />
+            </attributes>
+            <option name="description" value="// 13. 如果commitlog文件夹下没有文件则销毁consumequeue 下 的文件" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
+              <entry key="line" value="230" />
+            </attributes>
+            <option name="description" value="// 12. 删除 processOffset 后无效的consumequeue中的脏数据  保证consumequeue 的最大offset  和 commitlog的最大offset 一致" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
+              <entry key="line" value="223" />
+            </attributes>
+            <option name="description" value="// 11. 更新 MappedFileQueue的 flushedWhere 和 committedWhere指针" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
+              <entry key="line" value="217" />
+            </attributes>
+            <option name="description" value="// 10.3 查找结果为false  表明该文件的1G并未填满消息 还有空余  已经查找到了commitlog的末尾 跳出循环" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
+              <entry key="line" value="197" />
+            </attributes>
+            <option name="description" value="// 10.2 如果查找结果为true 且长度为0  表示消息正确 但是这个mappedFile已经处理完了" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
+              <entry key="line" value="193" />
+            </attributes>
+            <option name="description" value="// 10.1 查找结果为true  且 消息长度&gt; 0 表示消息正确   继续下一轮迭代" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
               <entry key="line" value="183" />
             </attributes>
-            <option name="description" value="* 1. 消息存储到commitlog后宕机 并未异步转发到consumeQueue &amp; index文件时的异常恢复入口  这里保证最终一致性" />
+            <option name="description" value="// 10. 拿到commitlog已确认的物理偏移量  注意 这里是倒数第三个mappedfile的**起始偏移量**  加上后边每个文件总长度" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
+              <entry key="line" value="175" />
+            </attributes>
+            <option name="description" value="// 9. broker正常停止再重启时  从倒数第三个commitlog文件开始恢复  若不足3个文件 从第一个开始恢复" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java" />
+              <entry key="line" value="1434" />
+            </attributes>
+            <option name="description" value="// 8. 正常退出恢复" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java" />
+              <entry key="line" value="213" />
+            </attributes>
+            <option name="description" value="// 7. 重点 ：恢复文件过程" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/index/IndexService.java" />
+              <entry key="line" value="64" />
+            </attributes>
+            <option name="description" value="// 6. 恢复内存中的IndexFile对象  如果上次是异常退出的 且最后保存的index时间戳大于刷盘点   就把对应的indexFile文件删除" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java" />
+              <entry key="line" value="208" />
+            </attributes>
+            <option name="description" value="// 5. 将checkpoint文件 转为内存中的checkpoint对象 用于后续记录刷盘点   文件检查点在config文件（与commitlog文件夹平级）中  存放上一次转发的位置" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java" />
+              <entry key="line" value="204" />
+            </attributes>
+            <option name="description" value="// 4. 加载消息消费队列store/consumequeue文件夹下的文件  转换为ConsumeQueue对象 到内存中的consumeQueueTable中" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java" />
+              <entry key="line" value="201" />
+            </attributes>
+            <option name="description" value="//  3. 加载store/commitlog 文件夹下的文件并按文件名排序 加载为jvm内存中的mappedfile对象" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java" />
+              <entry key="line" value="197" />
+            </attributes>
+            <option name="description" value="// 2. 加载磁盘上的延迟队列到本地   延迟消息消费进度存储路径为 /store/config/delayOffset.json" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java" />
+              <entry key="line" value="191" />
+            </attributes>
+            <option name="description" value="// 1. 判断是否异常关闭  如果存在abort文件  则异常关闭  ps ： abort文件当rocketmq启动时创建  创建后正常关闭时删除  异常则不会删除" />
+            <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
+          </BookmarkState>
+          <BookmarkState>
+            <attributes>
+              <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java" />
+              <entry key="line" value="183" />
+            </attributes>
+            <option name="description" value="* 0. 消息存储到commitlog后宕机 并未异步转发到consumeQueue &amp; index文件时的异常恢复入口  这里保证最终一致性" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
           </BookmarkState>
         </option>
@@ -20,7 +172,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/index/IndexService.java" />
-              <entry key="line" value="233" />
+              <entry key="line" value="234" />
             </attributes>
             <option name="description" value="// 14. 根据自定义业务id构建索引" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -28,7 +180,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/index/IndexService.java" />
-              <entry key="line" value="224" />
+              <entry key="line" value="225" />
             </attributes>
             <option name="description" value="// 13. 根据消息id构建索引index  req.getUniqKey()  再将index放到索引文件中（putKey方法完成）" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -36,7 +188,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/index/IndexService.java" />
-              <entry key="line" value="205" />
+              <entry key="line" value="206" />
             </attributes>
             <option name="description" value="// 12. 获得索引文件最大偏移量 endPhyOffset  排除重复转发的情况" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -44,7 +196,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/index/IndexService.java" />
-              <entry key="line" value="202" />
+              <entry key="line" value="203" />
             </attributes>
             <option name="description" value="// 11. 获取或者创建索引文件" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -52,7 +204,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java" />
-              <entry key="line" value="1610" />
+              <entry key="line" value="1611" />
             </attributes>
             <option name="description" value="// 10. 转发到index文件" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -76,7 +228,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java" />
-              <entry key="line" value="1532" />
+              <entry key="line" value="1533" />
             </attributes>
             <option name="description" value="// 7. 通过主题和队列id拿到队列" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -84,7 +236,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java" />
-              <entry key="line" value="1595" />
+              <entry key="line" value="1596" />
             </attributes>
             <option name="description" value="// 6. 转发到consumequeue" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -92,7 +244,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java" />
-              <entry key="line" value="1982" />
+              <entry key="line" value="1983" />
             </attributes>
             <option name="description" value="// 5. 转发每条消息 组合模式通过两个dispatcher来转发dispatchRequest" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -100,7 +252,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java" />
-              <entry key="line" value="1968" />
+              <entry key="line" value="1969" />
             </attributes>
             <option name="description" value="// 4. 拿到从reputFromOffset开始的全部有效数据  进行逐条遍历" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -108,7 +260,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java" />
-              <entry key="line" value="2045" />
+              <entry key="line" value="2046" />
             </attributes>
             <option name="description" value="// 3. 每隔1毫秒 执行一次真正的转发方法" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -137,7 +289,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
-              <entry key="line" value="921" />
+              <entry key="line" value="919" />
             </attributes>
             <option name="description" value="// 18. 如果是master判断是否需要同步双写（需要等待主从同步完成）并进行同步双写" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -145,7 +297,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
-              <entry key="line" value="919" />
+              <entry key="line" value="917" />
             </attributes>
             <option name="description" value="// 17. 依据刷盘模式进行同步刷盘 or 异步刷盘" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -153,7 +305,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
-              <entry key="line" value="902" />
+              <entry key="line" value="900" />
             </attributes>
             <option name="description" value="// 16. 解锁" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -161,7 +313,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
-              <entry key="line" value="1745" />
+              <entry key="line" value="1743" />
             </attributes>
             <option name="description" value="// 15. 写入完成 更新消息队列偏移量" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -169,7 +321,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
-              <entry key="line" value="1732" />
+              <entry key="line" value="1730" />
             </attributes>
             <option name="description" value="// 14. 将消息追加到内存中  后续步骤依据同步刷盘还是异步刷盘模式写到磁盘中" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -177,7 +329,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
-              <entry key="line" value="1670" />
+              <entry key="line" value="1668" />
             </attributes>
             <option name="description" value="// 13. 如果offset超过了文件1GB的限制 返回需要创建新commitLog文件" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -185,7 +337,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
-              <entry key="line" value="1659" />
+              <entry key="line" value="1657" />
             </attributes>
             <option name="description" value="// 12. 计算消息的总长度  所有长度综合" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -193,7 +345,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
-              <entry key="line" value="1620" />
+              <entry key="line" value="1618" />
             </attributes>
             <option name="description" value="// 11. 获得消息在队列中的偏移量  从队列中对应位置上开始写" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -201,7 +353,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
-              <entry key="line" value="1607" />
+              <entry key="line" value="1605" />
             </attributes>
             <option name="description" value="// 10. 设置全局唯一消息id 4字节ip + 4字节端口号 + 8字节消息偏移量  UtilAll.string2bytes方法能将msgId字符串还原成16字节的数组  根据提取的消息物理偏移量" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -217,7 +369,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
-              <entry key="line" value="870" />
+              <entry key="line" value="868" />
             </attributes>
             <option name="description" value="// 8. 追加消息" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -225,7 +377,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
-              <entry key="line" value="849" />
+              <entry key="line" value="847" />
             </attributes>
             <option name="description" value="// 7. 拿到最后一个commitlog文件 并加锁  mappedFileQueue对应commitlog文件夹 MappedFile是commitlog文件夹下的单个文件" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -233,7 +385,7 @@
           <BookmarkState>
             <attributes>
               <entry key="url" value="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
-              <entry key="line" value="819" />
+              <entry key="line" value="817" />
             </attributes>
             <option name="description" value="// 6. 延迟级别大于0 说明是延时消息或消息重试 把消息的真实主题和queueid存储到消息属性中 并修改为延时topic 和延时 queueid" />
             <option name="provider" value="com.intellij.ide.bookmark.providers.LineBookmarkProvider" />
@@ -686,132 +838,36 @@
       </GroupState>
     </option>
   </component>
-  <component name="BranchesTreeState">
-    <expand>
-      <path>
-        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
-      </path>
-      <path>
-        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
-      </path>
-      <path>
-        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
-        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
-      </path>
-    </expand>
-    <select />
-  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="-1">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="159">
-              <caret line="183" column="29" selection-start-line="183" selection-start-column="29" selection-end-line="183" selection-end-column="29" />
-              <folding>
-                <element signature="e#36172#36173#0" expanded="true" />
-                <element signature="e#36224#36225#0" expanded="true" />
-                <element signature="e#36275#36276#0" expanded="true" />
-                <element signature="e#36327#36328#0" expanded="true" />
-                <element signature="e#49106#49107#0" expanded="true" />
-                <element signature="e#49162#49163#0" expanded="true" />
-                <element signature="e#49228#49229#0" expanded="true" />
-                <element signature="e#49286#49287#0" expanded="true" />
-                <element signature="e#58332#58333#0" expanded="true" />
-                <element signature="e#58373#58374#0" expanded="true" />
-                <element signature="e#60310#60311#0" expanded="true" />
-                <element signature="e#60345#60346#0" expanded="true" />
-                <element signature="e#60797#60798#0" expanded="true" />
-                <element signature="e#60832#60833#0" expanded="true" />
-                <element signature="e#64971#66893#0" />
-                <element signature="e#71392#72602#0" />
-                <element signature="e#72614#74259#0" />
-                <element signature="e#74265#77052#0" />
-                <element signature="e#83691#83746#1" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/index/IndexService.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="183">
-              <caret line="228" column="40" lean-forward="true" selection-start-line="228" selection-start-column="40" selection-end-line="228" selection-end-column="40" />
+            <state relative-caret-position="309">
+              <caret line="64" selection-start-line="64" selection-end-line="64" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="jar://$PROJECT_DIR$/../../../../Program Files/Java/jdk1.8.0_171/src.zip!/java/util/Map.java">
+        <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="231">
-              <caret line="211" column="6" selection-start-line="211" selection-start-column="6" selection-end-line="211" selection-end-column="6" />
+            <state relative-caret-position="305">
+              <caret line="1437" column="53" selection-start-line="1437" selection-start-column="53" selection-end-line="1437" selection-end-column="53" />
             </state>
           </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/ConsumeQueue.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="276">
-              <caret line="473" column="13" lean-forward="true" selection-start-line="473" selection-start-column="13" selection-end-line="473" selection-end-column="13" />
-              <folding>
-                <element signature="e#7643#7826#1" />
-                <element signature="e#18829#19277#1" />
-                <element signature="e#19310#20312#1" />
-                <element signature="e#19479#19798#1" />
-                <element signature="e#19861#20298#1" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/MappedFileQueue.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="240" column="27" selection-start-line="240" selection-start-column="27" selection-end-line="240" selection-end-column="27" />
-              <folding>
-                <element signature="e#8979#8980#0" expanded="true" />
-                <element signature="e#9038#9039#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="jar://$PROJECT_DIR$/../../../../Program Files/Java/jdk1.8.0_171/src.zip!/java/nio/Buffer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="231">
-              <caret line="355" column="24" selection-start-line="355" selection-start-column="24" selection-end-line="355" selection-end-column="24" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLogDispatcher.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="216">
-              <caret line="24" column="9" selection-start-line="24" selection-start-column="9" selection-end-line="24" selection-end-column="9" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DispatchRequest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="647">
-              <caret line="145" column="18" selection-start-line="145" selection-start-column="18" selection-end-line="145" selection-end-column="18" />
-              <folding>
-                <element signature="e#4108#4109#0" expanded="true" />
-                <element signature="e#4138#4139#0" expanded="true" />
-                <element signature="e#4172#4173#0" expanded="true" />
-                <element signature="e#4202#4203#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="305">
+              <caret line="550" column="16" selection-start-line="550" selection-start-column="16" selection-end-line="550" selection-end-column="16" />
             </state>
           </provider>
         </entry>
@@ -819,21 +875,70 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="222">
-              <caret line="387" column="23" selection-start-line="387" selection-start-column="23" selection-end-line="387" selection-end-column="23" />
+            <state relative-caret-position="32">
+              <caret line="439" column="16" selection-start-line="439" selection-start-column="16" selection-end-line="439" selection-end-column="16" />
               <folding>
-                <element signature="e#18258#18259#0" expanded="true" />
-                <element signature="e#18299#18300#0" expanded="true" />
+                <element signature="e#8167#8232#1" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/common/src/main/java/org/apache/rocketmq/common/message/MessageConst.java">
+        <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/dledger/DLedgerCommitLog.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="231">
-              <caret line="40" column="48" selection-start-line="40" selection-start-column="48" selection-end-line="40" selection-end-column="48" />
+            <state relative-caret-position="305">
+              <caret line="271" column="14" selection-start-line="271" selection-start-column="14" selection-end-line="271" selection-end-column="14" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="jar:///Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/src.zip!/java/util/List.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="309">
+              <caret line="543" column="6" selection-start-line="543" selection-start-column="6" selection-end-line="543" selection-end-column="6" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DispatchRequest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="331">
+              <caret line="114" column="18" lean-forward="true" selection-start-line="114" selection-start-column="18" selection-end-line="114" selection-end-column="18" />
+              <folding>
+                <element signature="e#3603#3604#0" expanded="true" />
+                <element signature="e#3633#3634#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/MappedFile.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="371">
+              <caret line="569" lean-forward="true" selection-start-line="569" selection-end-line="569" />
+              <folding>
+                <element signature="e#9496#9497#0" expanded="true" />
+                <element signature="e#9538#9539#0" expanded="true" />
+                <element signature="e#21531#21532#0" expanded="true" />
+                <element signature="e#21583#21584#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/config/MessageStoreConfig.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="331">
+              <caret line="276" column="27" lean-forward="true" selection-start-line="276" selection-start-column="27" selection-end-line="276" selection-end-column="27" />
+              <folding>
+                <element signature="e#10335#10336#0" expanded="true" />
+                <element signature="e#10375#10376#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -841,66 +946,24 @@
     </leaf>
   </component>
   <component name="FileTypeUsageLocalSummary">
-    <fileType name="GitIgnore file">
-      <summary usageCount="2" lastUsed="1665372719683" />
-    </fileType>
     <fileType name="JAVA">
-      <summary usageCount="214" lastUsed="1666247598212" />
+      <summary usageCount="17" lastUsed="1666755504655" />
     </fileType>
     <fileType name="Markdown">
-      <summary usageCount="1" lastUsed="1648714134476" />
+      <summary usageCount="1" lastUsed="1666756993174" />
     </fileType>
     <fileType name="XML">
-      <summary usageCount="18" lastUsed="1666168107760" />
+      <summary usageCount="2" lastUsed="1666669178347" />
     </fileType>
-    <fileType name="textmate">
-      <summary usageCount="2" lastUsed="1665478094715" />
-    </fileType>
-  </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>register</find>
-      <find>mQClientFactory</find>
-      <find>update</find>
-      <find>keys</find>
-      <find>key</find>
-      <find>autoCreateTopicEnable</find>
-      <find>executeSendMessageHook</find>
-      <find>AsyncNettyRequestProcessor</find>
-      <find>byteBufferIndex</find>
-      <find>uniqKey</find>
-    </findStrings>
-    <dirStrings>
-      <dir>C:\Users\CarterChou\Desktop\rocketmq_annotation\namesrv\src\main\java\org\apache\rocketmq\namesrv\routeinfo</dir>
-    </dirStrings>
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
-      <option value="$PROJECT_DIR$/conf/broker.conf" />
-      <option value="$PROJECT_DIR$/namesrv/src/main/java/org/apache/rocketmq/namesrv/NamesrvStartup.java" />
-      <option value="$PROJECT_DIR$/common/src/main/java/org/apache/rocketmq/common/protocol/route/BrokerData.java" />
-      <option value="$PROJECT_DIR$/broker/src/main/java/org/apache/rocketmq/broker/out/BrokerOuterAPI.java" />
-      <option value="$PROJECT_DIR$/namesrv/src/main/java/org/apache/rocketmq/namesrv/NamesrvController.java" />
-      <option value="$PROJECT_DIR$/.gitignore" />
-      <option value="$PROJECT_DIR$/namesrv/src/main/java/org/apache/rocketmq/namesrv/routeinfo/RouteInfoManager.java" />
-      <option value="$PROJECT_DIR$/namesrv/src/main/java/org/apache/rocketmq/namesrv/processor/DefaultRequestProcessor.java" />
-      <option value="$PROJECT_DIR$/common/src/main/java/org/apache/rocketmq/common/message/Message.java" />
-      <option value="$PROJECT_DIR$/client/src/main/java/org/apache/rocketmq/client/impl/producer/TopicPublishInfo.java" />
-      <option value="$PROJECT_DIR$/common/src/main/java/org/apache/rocketmq/common/protocol/route/TopicRouteData.java" />
-      <option value="$PROJECT_DIR$/broker/src/main/java/org/apache/rocketmq/broker/topic/TopicConfigManager.java" />
-      <option value="$PROJECT_DIR$/client/src/main/java/org/apache/rocketmq/client/impl/factory/MQClientInstance.java" />
-      <option value="$PROJECT_DIR$/client/src/main/java/org/apache/rocketmq/client/latency/LatencyFaultToleranceImpl.java" />
-      <option value="$PROJECT_DIR$/client/src/main/java/org/apache/rocketmq/client/latency/MQFaultStrategy.java" />
-      <option value="$PROJECT_DIR$/client/src/main/java/org/apache/rocketmq/client/impl/producer/DefaultMQProducerImpl.java" />
-      <option value="$PROJECT_DIR$/client/src/main/java/org/apache/rocketmq/client/producer/DefaultMQProducer.java" />
-      <option value="$PROJECT_DIR$/broker/src/main/java/org/apache/rocketmq/broker/BrokerController.java" />
-      <option value="$PROJECT_DIR$/broker/src/main/java/org/apache/rocketmq/broker/processor/SendMessageProcessor.java" />
+      <option value="$PROJECT_DIR$/common/src/main/java/org/apache/rocketmq/common/ConfigManager.java" />
+      <option value="$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/index/IndexService.java" />
       <option value="$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/MappedFile.java" />
       <option value="$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java" />
-      <option value="$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/index/IndexFile.java" />
-      <option value="$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/ConsumeQueue.java" />
-      <option value="$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/index/IndexService.java" />
       <option value="$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java" />
+      <option value="$PROJECT_DIR$/README.md" />
     </changedPaths>
   </component>
   <component name="IgnoredFileRootStore">
@@ -910,16 +973,10 @@
       </set>
     </option>
   </component>
-  <component name="MavenProjectNavigator">
-    <option name="groupStructurally" value="true" />
-    <treeState>
-      <expand />
-      <select />
-    </treeState>
-  </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1" />
     <panes>
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -930,608 +987,215 @@
             <path>
               <item name="rocketmq_annotation" type="b2602c69:ProjectViewProjectNode" />
               <item name="rocketmq_annotation" type="462c0819:PsiDirectoryNode" />
-              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="distribution" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="rocketmq_annotation" type="b2602c69:ProjectViewProjectNode" />
+              <item name="rocketmq_annotation" type="462c0819:PsiDirectoryNode" />
+              <item name="distribution" type="462c0819:PsiDirectoryNode" />
+              <item name="conf" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
     </panes>
   </component>
-  <component name="TerminalArrangementManager">
-    <option name="myTabStates">
-      <TerminalTabState tabName="Local" currentWorkingDirectory="$PROJECT_DIR$" commandHistoryFileName="rocketmq_annotation-history" />
-      <TerminalTabState tabName="Command Prompt" currentWorkingDirectory="$PROJECT_DIR$" commandHistoryFileName="rocketmq_annotation-history1" />
-    </option>
-    <option name="mySelectedTabIndex" value="1" />
-  </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="86191000" />
+    <option name="totallyTimeSpent" value="13292000" />
   </component>
   <component name="ToolWindowManager">
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.28423238" visible="true" weight="0.25277615" />
-      <window_info id="Structure" order="1" sideWeight="0.7157676" side_tool="true" weight="0.25277615" />
-      <window_info id="Bookmarks" order="2" sideWeight="0.7157676" side_tool="true" visible="true" weight="0.25277615" />
-      <window_info id="Commit" order="3" sideWeight="0.45167786" weight="0.21654004" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Bookmarks" order="2" side_tool="true" visible="true" weight="0.25" />
+      <window_info id="Commit" order="3" />
       <window_info id="Learn" order="4" />
       <window_info id="Pull Requests" order="5" />
       <window_info id="Space Code Reviews" order="6" />
-      <window_info anchor="bottom" id="Version Control" order="0" weight="0.33014113" />
-      <window_info anchor="bottom" id="Event Log" order="1" side_tool="true" />
-      <window_info anchor="bottom" id="Find" order="2" />
-      <window_info anchor="bottom" id="Run" order="3" weight="0.33114922" />
-      <window_info anchor="bottom" id="Debug" order="4" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="5" />
-      <window_info anchor="bottom" id="Problems View" order="6" />
-      <window_info anchor="bottom" id="Inspection" order="7" weight="0.4" />
-      <window_info anchor="bottom" id="Profiler" order="8" />
-      <window_info anchor="bottom" id="Internal Method Tracing" order="9" />
-      <window_info anchor="bottom" id="File Transfer" order="10" />
-      <window_info anchor="bottom" id="Terminal" order="11" visible="true" weight="0.16481856" />
-      <window_info anchor="bottom" id="Database Changes" order="12" show_stripe_button="false" />
-      <window_info anchor="bottom" id="TypeScript" order="13" />
-      <window_info anchor="bottom" id="Endpoints" order="14" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Build" order="15" visible="true" weight="0.33014113" />
-      <window_info anchor="bottom" id="Dependencies" order="16" />
-      <window_info anchor="bottom" id="Flow" order="17" />
-      <window_info anchor="bottom" id="Services" order="18" show_stripe_button="false" />
-      <window_info anchor="right" id="PlantUML" order="0" />
-      <window_info anchor="right" id="Space Automation" order="1" />
-      <window_info anchor="right" id="Maven" order="2" />
-      <window_info anchor="right" id="Hierarchy" order="3" visible="true" weight="0.32984102" />
-      <window_info anchor="right" id="Database" order="4" />
-      <window_info anchor="right" id="documentation.v2" order="5" side_tool="true" />
-      <window_info anchor="right" id="Layout Validation" order="6" />
+      <window_info anchor="bottom" id="Dependencies" order="0" />
+      <window_info anchor="bottom" id="Version Control" order="1" />
+      <window_info anchor="bottom" id="Event Log" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Find" order="3" />
+      <window_info anchor="bottom" id="Run" order="4" />
+      <window_info anchor="bottom" id="Debug" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Problems View" order="7" />
+      <window_info anchor="bottom" id="Inspection" order="8" weight="0.4" />
+      <window_info anchor="bottom" id="Profiler" order="9" />
+      <window_info anchor="bottom" id="Internal Method Tracing" order="10" />
+      <window_info anchor="bottom" id="File Transfer" order="11" />
+      <window_info anchor="bottom" id="Terminal" order="12" />
+      <window_info anchor="bottom" id="Database Changes" order="13" show_stripe_button="false" />
+      <window_info anchor="bottom" id="TypeScript" order="14" />
+      <window_info anchor="bottom" id="Endpoints" order="15" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Flow" order="16" />
+      <window_info anchor="bottom" id="Services" order="17" show_stripe_button="false" />
+      <window_info anchor="right" id="Space Automation" order="0" />
+      <window_info anchor="right" id="Maven" order="1" />
+      <window_info anchor="right" id="Database" order="2" />
+      <window_info anchor="right" id="Layout Validation" order="3" />
+      <window_info anchor="right" id="documentation.v2" order="4" side_tool="true" />
     </layout>
     <recentWindows>
-      <value>Terminal</value>
+      <value>Project</value>
       <value>Bookmarks</value>
       <value>Structure</value>
-      <value>Project</value>
-      <value>Commit</value>
-      <value>Version Control</value>
-      <value>Run</value>
-      <value>Build</value>
-      <value>Hierarchy</value>
     </recentWindows>
   </component>
-  <component name="WindowStateProjectService">
-    <state x="537" y="169" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1665219206103">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="537" y="169" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1665219206103" />
-    <state width="1657" height="300" key="GridCell.Tab.0.bottom" timestamp="1665372520442">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1657" height="300" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1665372520442" />
-    <state width="1657" height="300" key="GridCell.Tab.0.center" timestamp="1665372520442">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1657" height="300" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1665372520442" />
-    <state width="1657" height="300" key="GridCell.Tab.0.left" timestamp="1665372520441">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1657" height="300" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1665372520441" />
-    <state width="1657" height="300" key="GridCell.Tab.0.right" timestamp="1665372520442">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="1657" height="300" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1665372520442" />
-    <state x="572" y="152" key="SettingsEditor" timestamp="1665651156361">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="572" y="152" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1665651156361" />
-    <state width="640" height="264" key="ShowBookmarks" timestamp="1665281393770">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state width="640" height="264" key="ShowBookmarks/0.0.1920.1040@0.0.1920.1040" timestamp="1665281393770" />
-    <state x="810" y="93" width="615" height="590" key="find.popup" timestamp="1665478135936">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="810" y="93" width="615" height="590" key="find.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1665478135936" />
-    <state x="551" y="181" key="new project wizard" timestamp="1666000524166">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="551" y="181" key="new project wizard/0.0.1920.1040@0.0.1920.1040" timestamp="1666000524166" />
-    <state x="1105" y="327" width="672" height="660" key="search.everywhere.popup" timestamp="1666248273596">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="1105" y="327" width="672" height="660" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1666248273596" />
-    <state x="1105" y="340" width="672" height="685" key="search.everywhere.popup/0.0.1920.1080@0.0.1920.1080" timestamp="1659075492944" />
-  </component>
+  <component name="Trusted.Project.Settings" hasCheckedIfOldProject="true" />
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/acl/src/main/java/org/apache/rocketmq/acl/plain/PlainAccessValidator.java">
+    <entry file="file://$PROJECT_DIR$/distribution/conf/logback_broker.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="239">
-          <caret line="72" column="33" selection-start-line="72" selection-start-column="33" selection-end-line="72" selection-end-column="33" />
+        <state relative-caret-position="550">
+          <caret line="25" column="26" selection-start-line="25" selection-start-column="26" selection-end-line="25" selection-end-column="26" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/broker/src/main/java/org/apache/rocketmq/broker/processor/ReplyMessageProcessor.java">
+    <entry file="jar:///Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/src.zip!/java/lang/Runtime.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="287">
-          <caret line="83" column="35" lean-forward="true" selection-start-line="83" selection-start-column="35" selection-end-line="83" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/java/org/apache/rocketmq/common/protocol/RequestCode.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="429">
-          <caret line="185" column="41" selection-start-line="185" selection-start-column="41" selection-end-line="185" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/src/main/java/org/apache/rocketmq/client/impl/MQClientAPIImpl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="287">
-          <caret line="502" column="59" selection-start-line="502" selection-start-column="59" selection-end-line="502" selection-end-column="59" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/remoting/src/main/java/org/apache/rocketmq/remoting/RemotingClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="239">
-          <caret line="33" column="20" selection-start-line="33" selection-start-column="20" selection-end-line="33" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/remoting/src/main/java/org/apache/rocketmq/remoting/netty/NettyRemotingClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="263">
-          <caret line="376" column="54" selection-start-line="376" selection-start-column="54" selection-end-line="376" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/remoting/src/main/java/org/apache/rocketmq/remoting/netty/AsyncNettyRequestProcessor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="22" column="34" selection-start-line="22" selection-start-column="34" selection-end-line="22" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/namesrv/src/main/java/org/apache/rocketmq/namesrv/processor/DefaultRequestProcessor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="60" column="30" selection-start-line="60" selection-start-column="30" selection-end-line="60" selection-end-column="30" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/namesrv/src/main/java/org/apache/rocketmq/namesrv/NamesrvController.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="311">
-          <caret line="87" lean-forward="true" selection-start-line="87" selection-end-line="87" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/broker/src/main/java/org/apache/rocketmq/broker/transaction/queue/TransactionalMessageBridge.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="198" column="47" selection-start-line="198" selection-start-column="47" selection-end-line="198" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/broker/src/main/java/org/apache/rocketmq/broker/transaction/queue/TransactionalMessageServiceImpl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="279">
-          <caret line="64" column="44" lean-forward="true" selection-start-line="64" selection-start-column="44" selection-end-line="64" selection-end-column="44" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/broker/src/main/java/org/apache/rocketmq/broker/transaction/TransactionalMessageService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="40" column="40" selection-start-line="40" selection-start-column="40" selection-end-line="40" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/remoting/src/main/java/org/apache/rocketmq/remoting/netty/NettyRemotingServer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="290" column="16" selection-start-line="290" selection-start-column="16" selection-end-line="290" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/remoting/src/main/java/org/apache/rocketmq/remoting/RemotingServer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="168">
-          <caret line="29" column="9" selection-start-line="29" selection-start-column="9" selection-end-line="29" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/remoting/src/main/java/org/apache/rocketmq/remoting/netty/NettyRemotingAbstract.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="81" column="103" selection-start-line="81" selection-start-column="103" selection-end-line="81" selection-end-column="103" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/broker/src/main/java/org/apache/rocketmq/broker/processor/SendMessageProcessor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="279">
-          <caret line="303" column="81" selection-start-line="303" selection-start-column="81" selection-end-line="303" selection-end-column="81" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/PutMessageStatus.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="27" column="4" selection-start-line="27" selection-start-column="4" selection-end-line="27" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/schedule/ScheduleMessageService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="239">
-          <caret line="74" column="22" selection-start-line="74" selection-start-column="22" selection-end-line="74" selection-end-column="22" />
-          <folding>
-            <element signature="e#3411#3412#0" expanded="true" />
-            <element signature="e#3448#3449#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/PutMessageSpinLock.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="192">
-          <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/PutMessageLock.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="21" column="17" selection-start-line="21" selection-start-column="17" selection-end-line="21" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/../../../../Program Files/Java/jdk1.8.0_171/src.zip!/java/util/Deque.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="239">
-          <caret line="295" column="6" selection-start-line="295" selection-start-column="6" selection-end-line="295" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/TransientStorePool.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="503">
-          <caret line="79" column="51" selection-start-line="79" selection-start-column="51" selection-end-line="79" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/AppendMessageCallback.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="31" column="24" selection-start-line="31" selection-start-column="24" selection-end-line="31" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/java/org/apache/rocketmq/common/message/MessageExt.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="239">
-          <caret line="107" column="22" selection-start-line="107" selection-start-column="22" selection-end-line="107" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/java/org/apache/rocketmq/common/message/MessageDecoder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="60" column="105" selection-start-line="60" selection-start-column="99" selection-end-line="60" selection-end-column="105" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/AppendMessageStatus.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="192">
-          <caret line="23" column="9" lean-forward="true" selection-start-line="23" selection-start-column="9" selection-end-line="23" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/java/org/apache/rocketmq/common/message/Message.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="151" column="19" selection-start-line="151" selection-start-column="19" selection-end-line="151" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/MappedFile.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="230" column="16" selection-start-line="230" selection-start-column="16" selection-end-line="230" selection-end-column="16" />
-          <folding>
-            <element signature="e#9468#9469#0" expanded="true" />
-            <element signature="e#9510#9511#0" expanded="true" />
-            <element signature="e#15495#15496#0" expanded="true" />
-            <element signature="e#15559#15560#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/index/IndexFile.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4440">
-          <caret line="223" selection-start-line="222" selection-start-column="46" selection-end-line="223" />
-          <folding>
-            <element signature="e#3319#3320#0" expanded="true" />
-            <element signature="e#3391#3392#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/../../../../Program Files/Java/jdk1.8.0_171/src.zip!/java/nio/MappedByteBuffer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="567">
-          <caret line="65" column="22" selection-start-line="65" selection-start-column="22" selection-end-line="65" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/../../../../Program Files/Java/jdk1.8.0_171/src.zip!/java/nio/DirectByteBuffer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="168">
-          <caret line="36" column="6" selection-start-line="36" selection-start-column="6" selection-end-line="36" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/index/IndexHeader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1968">
-          <caret line="112" column="23" selection-start-line="112" selection-start-column="23" selection-end-line="112" selection-end-column="23" />
-          <folding>
-            <element signature="e#4190#4191#0" expanded="true" />
-            <element signature="e#4229#4230#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/../../../../Program Files/Java/jdk1.8.0_171/src.zip!/java/nio/ByteBuffer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18283">
-          <caret line="1760" column="31" selection-start-line="1760" selection-start-column="31" selection-end-line="1760" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/ha/WaitNotifyObject.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1176">
-          <caret line="69" column="61" selection-start-line="69" selection-start-column="61" selection-end-line="69" selection-end-column="61" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/278ued9kyKDb4KVAl4BkyvMw3LL.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="432">
-          <caret line="18" column="26" selection-start-line="18" selection-start-column="26" selection-end-line="18" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/config/MessageStoreConfig.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="161" column="26" lean-forward="true" selection-start-line="161" selection-start-column="26" selection-end-line="161" selection-end-column="26" />
-          <folding>
-            <element signature="e#6903#6904#0" expanded="true" />
-            <element signature="e#6943#6944#0" expanded="true" />
-            <element signature="e#7016#7017#0" expanded="true" />
-            <element signature="e#7074#7075#0" expanded="true" />
-            <element signature="e#7387#7388#0" expanded="true" />
-            <element signature="e#7426#7427#0" expanded="true" />
-            <element signature="e#10145#10146#0" expanded="true" />
-            <element signature="e#10182#10183#0" expanded="true" />
-            <element signature="e#15422#15423#0" expanded="true" />
-            <element signature="e#15459#15460#0" expanded="true" />
-            <element signature="e#15603#15604#0" expanded="true" />
-            <element signature="e#15637#15638#0" expanded="true" />
-            <element signature="e#20638#20639#0" expanded="true" />
-            <element signature="e#20683#20684#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/MessageStore.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="45" column="9" selection-start-line="45" selection-start-column="9" selection-end-line="45" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/java/org/apache/rocketmq/common/ServiceThread.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="44" column="11" lean-forward="true" selection-start-line="44" selection-start-column="11" selection-end-line="44" selection-end-column="11" />
+        <state relative-caret-position="309">
+          <caret line="206" column="16" selection-start-line="206" selection-start-column="16" selection-end-line="206" selection-end-column="16" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/broker/src/main/java/org/apache/rocketmq/broker/BrokerStartup.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="65" column="31" lean-forward="true" selection-start-line="65" selection-start-column="31" selection-end-line="65" selection-end-column="31" />
+        <state relative-caret-position="110">
+          <caret line="50" column="17" lean-forward="true" selection-start-line="50" selection-start-column="17" selection-end-line="50" selection-end-column="17" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/broker/src/main/java/org/apache/rocketmq/broker/BrokerController.java">
+    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/config/StorePathConfigHelper.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="183">
-          <caret line="851" column="19" selection-start-line="851" selection-start-column="19" selection-end-line="851" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/broker/src/test/java/org/apache/rocketmq/broker/filter/CommitLogDispatcherCalcBitMapTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="62" column="50" selection-start-line="62" selection-start-column="50" selection-end-line="62" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/../../../../Program Files/Java/jdk1.8.0_171/src.zip!/java/util/Map.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="211" column="6" selection-start-line="211" selection-start-column="6" selection-end-line="211" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/../../../../Program Files/Java/jdk1.8.0_171/src.zip!/java/nio/Buffer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="355" column="24" selection-start-line="355" selection-start-column="24" selection-end-line="355" selection-end-column="24" />
+        <state relative-caret-position="511">
+          <caret line="46" column="25" selection-start-line="46" selection-start-column="25" selection-end-line="46" selection-end-column="25" />
+          <folding>
+            <element signature="e#1506#1507#0" expanded="true" />
+            <element signature="e#1563#1564#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/MappedFileQueue.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="240" column="27" selection-start-line="240" selection-start-column="27" selection-end-line="240" selection-end-column="27" />
+        <state relative-caret-position="108">
+          <caret line="150" column="19" selection-start-line="150" selection-start-column="19" selection-end-line="150" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/java/org/apache/rocketmq/common/ConfigManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="445">
+          <caret line="67" column="25" selection-start-line="67" selection-start-column="25" selection-end-line="67" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/schedule/ScheduleMessageService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="349">
+          <caret line="180" column="67" selection-start-line="180" selection-start-column="40" selection-end-line="180" selection-end-column="67" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/broker/src/main/java/org/apache/rocketmq/broker/BrokerController.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="824">
+          <caret line="260" column="45" selection-start-line="260" selection-start-column="45" selection-end-line="260" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/index/IndexService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="309">
+          <caret line="64" selection-start-line="64" selection-end-line="64" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/config/MessageStoreConfig.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="331">
+          <caret line="276" column="27" lean-forward="true" selection-start-line="276" selection-start-column="27" selection-end-line="276" selection-end-column="27" />
           <folding>
-            <element signature="e#8979#8980#0" expanded="true" />
-            <element signature="e#9038#9039#0" expanded="true" />
+            <element signature="e#10335#10336#0" expanded="true" />
+            <element signature="e#10375#10376#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/ConsumeQueue.java">
+    <entry file="jar:///Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/src.zip!/java/nio/ByteBuffer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="276">
-          <caret line="473" column="13" lean-forward="true" selection-start-line="473" selection-start-column="13" selection-end-line="473" selection-end-column="13" />
+        <state relative-caret-position="143">
+          <caret line="499" selection-start-line="499" selection-end-line="499" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/MappedFile.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="371">
+          <caret line="569" lean-forward="true" selection-start-line="569" selection-end-line="569" />
           <folding>
-            <element signature="e#7643#7826#1" />
-            <element signature="e#18829#19277#1" />
-            <element signature="e#19310#20312#1" />
-            <element signature="e#19479#19798#1" />
-            <element signature="e#19861#20298#1" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLogDispatcher.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="24" column="9" selection-start-line="24" selection-start-column="9" selection-end-line="24" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/java/org/apache/rocketmq/common/message/MessageConst.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="40" column="48" selection-start-line="40" selection-start-column="48" selection-end-line="40" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="222">
-          <caret line="387" column="23" selection-start-line="387" selection-start-column="23" selection-end-line="387" selection-end-column="23" />
-          <folding>
-            <element signature="e#18258#18259#0" expanded="true" />
-            <element signature="e#18299#18300#0" expanded="true" />
+            <element signature="e#9496#9497#0" expanded="true" />
+            <element signature="e#9538#9539#0" expanded="true" />
+            <element signature="e#21531#21532#0" expanded="true" />
+            <element signature="e#21583#21584#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DispatchRequest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="647">
-          <caret line="145" column="18" selection-start-line="145" selection-start-column="18" selection-end-line="145" selection-end-column="18" />
+        <state relative-caret-position="331">
+          <caret line="114" column="18" lean-forward="true" selection-start-line="114" selection-start-column="18" selection-end-line="114" selection-end-column="18" />
           <folding>
-            <element signature="e#4108#4109#0" expanded="true" />
-            <element signature="e#4138#4139#0" expanded="true" />
-            <element signature="e#4172#4173#0" expanded="true" />
-            <element signature="e#4202#4203#0" expanded="true" />
+            <element signature="e#3603#3604#0" expanded="true" />
+            <element signature="e#3633#3634#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/index/IndexService.java">
+    <entry file="jar:///Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home/src.zip!/java/util/List.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="183">
-          <caret line="228" column="40" lean-forward="true" selection-start-line="228" selection-start-column="40" selection-end-line="228" selection-end-column="40" />
+        <state relative-caret-position="309">
+          <caret line="543" column="6" selection-start-line="543" selection-start-column="6" selection-end-line="543" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/dledger/DLedgerCommitLog.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="305">
+          <caret line="271" column="14" selection-start-line="271" selection-start-column="14" selection-end-line="271" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/ConsumeQueue.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="305">
+          <caret line="550" column="16" selection-start-line="550" selection-start-column="16" selection-end-line="550" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/CommitLog.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="32">
+          <caret line="439" column="16" selection-start-line="439" selection-start-column="16" selection-end-line="439" selection-end-column="16" />
+          <folding>
+            <element signature="e#8167#8232#1" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/store/src/main/java/org/apache/rocketmq/store/DefaultMessageStore.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="159">
-          <caret line="183" column="29" selection-start-line="183" selection-start-column="29" selection-end-line="183" selection-end-column="29" />
-          <folding>
-            <element signature="e#36172#36173#0" expanded="true" />
-            <element signature="e#36224#36225#0" expanded="true" />
-            <element signature="e#36275#36276#0" expanded="true" />
-            <element signature="e#36327#36328#0" expanded="true" />
-            <element signature="e#49106#49107#0" expanded="true" />
-            <element signature="e#49162#49163#0" expanded="true" />
-            <element signature="e#49228#49229#0" expanded="true" />
-            <element signature="e#49286#49287#0" expanded="true" />
-            <element signature="e#58332#58333#0" expanded="true" />
-            <element signature="e#58373#58374#0" expanded="true" />
-            <element signature="e#60310#60311#0" expanded="true" />
-            <element signature="e#60345#60346#0" expanded="true" />
-            <element signature="e#60797#60798#0" expanded="true" />
-            <element signature="e#60832#60833#0" expanded="true" />
-            <element signature="e#64971#66893#0" />
-            <element signature="e#71392#72602#0" />
-            <element signature="e#72614#74259#0" />
-            <element signature="e#74265#77052#0" />
-            <element signature="e#83691#83746#1" />
-          </folding>
+        <state relative-caret-position="305">
+          <caret line="1437" column="53" selection-start-line="1437" selection-start-column="53" selection-end-line="1437" selection-end-column="53" />
         </state>
       </provider>
     </entry>
-  </component>
-  <component name="masterDetails">
-    <states>
-      <state key="ArtifactsStructureConfigurable.UI">
-        <settings>
-          <artifact-editor />
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="FacetStructureConfigurable.UI">
-        <settings>
-          <last-edited>No facets are configured</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="GlobalLibrariesConfigurable.UI" />
-      <state key="JdkListConfigurable.UI" />
-      <state key="ModuleStructureConfigurable.UI">
-        <settings>
-          <last-edited>rocketmq-all</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-                <option value="0.6" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-      <state key="ProjectLibrariesConfigurable.UI">
-        <settings>
-          <last-edited>Maven: ch.qos.logback:logback-classic:1.0.13</last-edited>
-          <splitter-proportions>
-            <option name="proportions">
-              <list>
-                <option value="0.2" />
-              </list>
-            </option>
-          </splitter-proportions>
-        </settings>
-      </state>
-    </states>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]" />
+    </entry>
   </component>
 </project>

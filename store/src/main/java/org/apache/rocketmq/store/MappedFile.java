@@ -61,7 +61,7 @@ public class MappedFile extends ReferenceResource {
     protected ByteBuffer writeBuffer = null; // 堆外内存bytebuffer
     protected TransientStorePool transientStorePool = null; // 堆外内存池 通过该内存池产生 上面的变量 writeBuffer
     private String fileName; // 文件名
-    private long fileFromOffset; // 该文件处理的偏移量
+    private long fileFromOffset; // 该文件处理的起始偏移量
     private File file; // 对应物理文件
     private MappedByteBuffer mappedByteBuffer; // 物理文件对应的内存映射buffer
     private volatile long storeTimestamp = 0; // 文件的最后一次写入时间

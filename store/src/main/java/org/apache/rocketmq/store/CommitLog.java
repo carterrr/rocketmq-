@@ -168,11 +168,12 @@ public class CommitLog {
      * When the normal exit, data recovery, all memory data have been flush
      */
     public void recoverNormally(long maxPhyOffsetOfConsumeQueue) {
+        // 该参数用于定义恢复时是否启用CRC校验  默认为true
         boolean checkCRCOnRecover = this.defaultMessageStore.getMessageStoreConfig().isCheckCRCOnRecover();
         final List<MappedFile> mappedFiles = this.mappedFileQueue.getMappedFiles();
         if (!mappedFiles.isEmpty()) {
             // Began to recover from the last third file
-            // broker正常停止再重启时  从倒数第三个commitlog文件开始恢复
+            // 9. broker正常停止再重启时  从倒数第三个commitlog文件开始恢复  若不足3个文件 从第一个开始恢复
             int index = mappedFiles.size() - 3;
             // 不足3个文件 从第一个开始恢复
             if (index < 0)
@@ -180,7 +181,8 @@ public class CommitLog {
             // 从mappedFile中拿到bytebuffer
             MappedFile mappedFile = mappedFiles.get(index);
             ByteBuffer byteBuffer = mappedFile.sliceByteBuffer();
-            // 上次处理中的位置
+            // 10. 拿到commitlog已确认的物理偏移量  注意 这里是倒数第三个mappedfile的起始偏移量（也就是文件名）
+            // 真实的offset要加上文件总长度
             long processOffset = mappedFile.getFileFromOffset();
             long mappedFileOffset = 0;
             while (true) {
@@ -189,20 +191,16 @@ public class CommitLog {
                 // 拿到消息长度
                 int size = dispatchRequest.getMsgSize();
                 // Normal data
-                // 查找结果为true  且 消息长度> 0 表示消息正确
+                // 10.1 查找结果为true  且 消息长度> 0 表示消息正确   继续下一轮迭代
                 if (dispatchRequest.isSuccess() && size > 0) {
                     mappedFileOffset += size;
                 }
-                // Come the end of the file, switch to the next file Since the
-                // return 0 representatives met last hole,
-                // this can not be included in truncate offset
-                // 如果查找结果为true 且长度为0  表示已经到达文件末尾
-                // 该mappedFile中的消息已经同步转发过了
-                // 重置 mappedFileOffset processOffset
-                // 查找下一个文件
+                // 10.2 如果查找结果为true 且长度为0  表示消息正确 但是这个mappedFile已经处理完了
+                // 如果还有下一个mappedfile文件 则丢弃之前的processOffset 及 mappedFileOffset 重置 mappedFileOffset processOffset
+                // 继续迭代处理 下一个文件
                 else if (dispatchRequest.isSuccess() && size == 0) {
                     index++;
-                    // 若index 超出所有文件的长度则跳出循环  全部同步过了  正常退出
+                    // 若index 超出所有文件的长度则跳出循环  全部处理过了  正常退出
                     if (index >= mappedFiles.size()) {
                         // Current branch can not happen
                         log.info("recover last 3 physics file over, last mapped file " + mappedFile.getFileName());
@@ -217,26 +215,26 @@ public class CommitLog {
                     }
                 }
                 // Intermediate file read error
-                // 查找结果为false  表明该文件的1G并未填满消息 还有空余  跳出循环
+                // 10.3 查找结果为false  表明该文件的1G并未填满消息 还有空余  已经查找到了commitlog的末尾 跳出循环
                 else if (!dispatchRequest.isSuccess()) {
                     log.info("recover physics file end, " + mappedFile.getFileName());
                     break;
                 }
             }
-            // 更新 MappedFileQueue的 flushedWhere 和 committedWhere指针
+            // 11. 更新 MappedFileQueue的 flushedWhere 和 committedWhere指针
             processOffset += mappedFileOffset;
             this.mappedFileQueue.setFlushedWhere(processOffset);
             this.mappedFileQueue.setCommittedWhere(processOffset);
             this.mappedFileQueue.truncateDirtyFiles(processOffset);
 
             // Clear ConsumeQueue redundant data
-            // 删除 processOffset 后的脏数据
+            // 12. 删除 processOffset 后无效的consumequeue中的脏数据  保证consumequeue 的最大offset  和 commitlog的最大offset 一致
             if (maxPhyOffsetOfConsumeQueue >= processOffset) {
                 log.warn("maxPhyOffsetOfConsumeQueue({}) >= processOffset({}), truncate dirty logic files", maxPhyOffsetOfConsumeQueue, processOffset);
                 this.defaultMessageStore.truncateDirtyLogicFiles(processOffset);
             }
         } else {
-            // Commitlog case files are deleted
+            // 13. 如果commitlog文件夹下没有文件则销毁consumequeue 📁下 的文件
             log.warn("The commitlog files are deleted, and delete the consume queue files");
             this.mappedFileQueue.setFlushedWhere(0);
             this.mappedFileQueue.setCommittedWhere(0);
@@ -451,7 +449,7 @@ public class CommitLog {
             MappedFile mappedFile = null;
             for (; index >= 0; index--) {
                 mappedFile = mappedFiles.get(index);
-                // 判断该commitlog 文件是否正确 找到第一个消息存储正常的文件
+                // 15. 判断该commitlog 文件是否正确 找到第一个消息存储正常的文件
                 if (this.isMappedFileMatchedRecover(mappedFile)) {
                     log.info("recover from this mapped file " + mappedFile.getFileName());
                     break;
@@ -475,7 +473,7 @@ public class CommitLog {
                     // Normal data
                     if (size > 0) {
                         mappedFileOffset += size;
-
+                        // 16.  需要额外做消息转发 转发到 consumequeue 和 indexfile
                         if (this.defaultMessageStore.getMessageStoreConfig().isDuplicationEnable()) {
                             if (dispatchRequest.getCommitLogOffset() < this.defaultMessageStore.getConfirmOffset()) {
                                 this.defaultMessageStore.doDispatch(dispatchRequest);
@@ -532,12 +530,12 @@ public class CommitLog {
 
     private boolean isMappedFileMatchedRecover(final MappedFile mappedFile) {
         ByteBuffer byteBuffer = mappedFile.sliceByteBuffer();
-
+        // 不是魔数开头返回false
         int magicCode = byteBuffer.getInt(MessageDecoder.MESSAGE_MAGIC_CODE_POSTION);
         if (magicCode != MESSAGE_MAGIC_CODE) {
             return false;
         }
-
+        // 首条消息存储时间为0 表示该文件并没有存储消息 返回false
         int sysFlag = byteBuffer.getInt(MessageDecoder.SYSFLAG_POSITION);
         int bornhostLength = (sysFlag & MessageSysFlag.BORNHOST_V6_FLAG) == 0 ? 8 : 20;
         int msgStoreTimePos = 4 + 4 + 4 + 4 + 4 + 8 + 8 + 4 + 8 + bornhostLength;
@@ -545,7 +543,7 @@ public class CommitLog {
         if (0 == storeTimestamp) {
             return false;
         }
-
+        // 如果文件第一条消息已经在刷盘点之前了  表示该文件中至少有部分消息是可靠的 从该文件开始恢复 返回true
         if (this.defaultMessageStore.getMessageStoreConfig().isMessageIndexEnable()
             && this.defaultMessageStore.getMessageStoreConfig().isMessageIndexSafe()) {
             if (storeTimestamp <= this.defaultMessageStore.getStoreCheckpoint().getMinTimestampIndex()) {
