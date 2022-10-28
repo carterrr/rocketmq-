@@ -972,14 +972,15 @@ public class CommitLog {
 
     // MARK 刷盘方法
     public void handleDiskFlush(AppendMessageResult result, PutMessageResult putMessageResult, MessageExt messageExt) {
-        // Synchronization flush 同步刷盘  看MessageStoreConfig 的  private FlushDiskType flushDiskType = FlushDiskType.ASYNC_FLUSH; 有没有被修改
+        // 默认异步  要看MessageStoreConfig 的  private FlushDiskType flushDiskType = FlushDiskType.ASYNC_FLUSH; 有没有被修改
+        // 1. 判断是否同步刷盘
         if (FlushDiskType.SYNC_FLUSH == this.defaultMessageStore.getMessageStoreConfig().getFlushDiskType()) {
             // 拿到刷盘服务
             final GroupCommitService service = (GroupCommitService) this.flushCommitLogService;
             if (messageExt.isWaitStoreMsgOK()) {
-                // 创建刷盘请求对象
+                // 2. 创建刷盘请求对象
                 GroupCommitRequest request = new GroupCommitRequest(result.getWroteOffset() + result.getWroteBytes());
-                // 请求对象提交到刷盘服务service中
+                // 3. 请求对象提交到刷盘服务service中  其中直接唤醒刷盘服务
                 // service中会判断是否开启  TransientStorePoolEnable
                 // 开启刷盘会 刷 fileChannel.force()
                 // 不开启刷盘会   mappedByteBuffer.force()
@@ -1002,7 +1003,11 @@ public class CommitLog {
                 service.wakeup();
             }
         }
-        // Asynchronous flush
+        // 1. 开启异步刷盘时
+        //  如果TransientStorePoolEnable为true  则通过堆外内存池中申请一个和commitlog同样大小的堆外内存并锁定，确保不会swap出内存，然后再写入文件
+        //  如果TransientStorePoolEnable为false 直接追加到映射的内存并写入文件
+
+
         // 异步刷盘  开启  TransientStorePoolEnable 时
         //                  先  进入 CommitRealTimeService对象  commitLogService 的run 方法 从 将ByteBuffer中新追加的内容提交到fileChannel中
         //                  再  在run 方法中  唤醒到flushCommitLogService 的 run 方法刷到磁盘
@@ -1476,29 +1481,29 @@ public class CommitLog {
             // 上读锁
             synchronized (this.requestsRead) {
                 if (!this.requestsRead.isEmpty()) {
-                    // 遍历集合中所有请求
+                    // 5. 遍历集合中所有请求
                     for (GroupCommitRequest req : this.requestsRead) {
                         // There may be a message in the next file, so a maximum of
                         // two times the flush
                         boolean flushOK = false;
                         // 循环两次  考虑消息跨文件存储 两次一起提交
                         for (int i = 0; i < 2 && !flushOK; i++) {
-                            // 刷盘指针  小于 提交到磁盘指针  时为false   可以刷盘
+                            // 6. 刷盘指针  小于 请求刷盘的offset  时可以刷盘  此时flushOK为false
 
                             flushOK = CommitLog.this.mappedFileQueue.getFlushedWhere() >= req.getNextOffset();
 
                             if (!flushOK) {
-                                // 刷盘到文件中
+                                // 刷盘到文件中  最终调用mappedByteBuffer.force();
                                 CommitLog.this.mappedFileQueue.flush(0);
                             }
                         }
-                        // 返回刷盘状态
+                        //  7. 唤醒请求线程 并告知刷盘结果
                         req.wakeupCustomer(flushOK ? PutMessageStatus.PUT_OK : PutMessageStatus.FLUSH_DISK_TIMEOUT);
                     }
 
                     long storeTimestamp = CommitLog.this.mappedFileQueue.getStoreTimestamp();
                     if (storeTimestamp > 0) {
-                        // 更新存盘点  checkpoint 在 /rocketmq/dataDir/config  下面
+                        // 8. 更新存盘点  但是没有刷盘  实际刷存盘点的服务是 FlushConsumeQueueService 刷到 /rocketmq/dataDir/config  下面
                         CommitLog.this.defaultMessageStore.getStoreCheckpoint().setPhysicMsgTimestamp(storeTimestamp);
                     }
 
@@ -1521,7 +1526,7 @@ public class CommitLog {
                 try {
                     // 进入休眠  被唤醒后隔10毫秒 往后边走
                     this.waitForRunning(10);
-                    // run 方法的核心  doCommit
+                    // 4. 同步刷盘唤醒后执行的方法
                     this.doCommit();
                 } catch (Exception e) {
                     CommitLog.log.warn(this.getServiceName() + " service has exception. ", e);
@@ -1537,7 +1542,7 @@ public class CommitLog {
             }
 
             synchronized (this) {
-                // 交换读写请求集合  本次处理读请求下次循环 处理写请求  本次写下次循环读
+                // 正常停止的时候交换读写请求集合  本次处理读请求下次循环 处理写请求  本次写下次循环读
                 this.swapRequests();
             }
             // doCommit()方法始终从  requestsRead 集合中取请求来 commit
