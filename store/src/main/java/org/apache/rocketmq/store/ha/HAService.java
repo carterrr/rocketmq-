@@ -289,7 +289,7 @@ public class HAService {
                         if (!transferOK) {
                             log.warn("transfer messsage to slave timeout, " + req.getNextOffset());
                         }
-
+                        // 5. 根据上面的超时循环内部判断  拿到同步给slave节点的结果 给服务端一个future  唤醒对应的future.get()
                         req.wakeupCustomer(transferOK ? PutMessageStatus.PUT_OK : PutMessageStatus.FLUSH_SLAVE_TIMEOUT);
                     }
 

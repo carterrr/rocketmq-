@@ -353,7 +353,7 @@ public class MappedFileQueue {
             for (int i = 0; i < mfsLength; i++) {
                 // 遍历文件
                 MappedFile mappedFile = (MappedFile) mfs[i];
-
+                //7. 文件的最后更新时间  +  72小时 比当前时间小 就干掉
                 long liveMaxTimestamp = mappedFile.getLastModifiedTimestamp() + expiredTime;
                 if (System.currentTimeMillis() >= liveMaxTimestamp || cleanImmediately) {
                     // 超过72小时  给干掉 物理文件
@@ -380,7 +380,7 @@ public class MappedFileQueue {
                 }
             }
         }
-        // 清理对应内存文件
+        // 批量删除 提高效率
         deleteExpiredFile(files);
 
         return deleteCount;

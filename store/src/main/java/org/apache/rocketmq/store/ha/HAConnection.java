@@ -290,7 +290,7 @@ public class HAConnection {
 
                         this.lastWriteOver = this.transferData();
                     } else {
-
+                        // 3. 唤醒这里的循环 发送数据
                         HAConnection.this.haService.getWaitNotifyObject().allWaitForRunning(100);
                     }
                 } catch (Exception e) {
