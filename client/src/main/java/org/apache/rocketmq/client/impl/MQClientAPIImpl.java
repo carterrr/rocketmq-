@@ -717,7 +717,7 @@ public class MQClientAPIImpl {
             case ONEWAY:
                 assert false;
                 return null;
-            case ASYNC:
+            case ASYNC: // 默认走这里  拉取消息而不是send消息
                 this.pullMessageAsync(addr, request, timeoutMillis, pullCallback);
                 return null;
             case SYNC:
@@ -731,6 +731,7 @@ public class MQClientAPIImpl {
         return null;
     }
 
+    // 12. 发送netty请求  拉取消息
     private void pullMessageAsync(
         final String addr,
         final RemotingCommand request,
@@ -743,6 +744,7 @@ public class MQClientAPIImpl {
                 RemotingCommand response = responseFuture.getResponseCommand();
                 if (response != null) {
                     try {
+                        // 20.  消费者处理拉取消息结果
                         PullResult pullResult = MQClientAPIImpl.this.processPullResponse(response);
                         assert pullResult != null;
                         // 放到pullCallback 中
@@ -777,6 +779,7 @@ public class MQClientAPIImpl {
     // consumer处理响应结果的方法
     private PullResult processPullResponse(
         final RemotingCommand response) throws MQBrokerException, RemotingCommandException {
+        // 21. 转换响应码到拉取结果码
         PullStatus pullStatus = PullStatus.NO_NEW_MSG;
         switch (response.getCode()) {
             case ResponseCode.SUCCESS:

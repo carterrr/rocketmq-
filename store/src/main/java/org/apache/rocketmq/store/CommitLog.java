@@ -592,9 +592,12 @@ public class CommitLog {
         int queueId = msg.getQueueId();
 
         final int tranType = MessageSysFlag.getTransactionValue(msg.getSysFlag());
+        //9. 默认的msg.getSysFlag() = 0 tranType 因此也是0 如果是consumer消费失败的消息 发回broker 再次put到commit log 一定会走这里
         if (tranType == MessageSysFlag.TRANSACTION_NOT_TYPE
                 || tranType == MessageSysFlag.TRANSACTION_COMMIT_TYPE) {
             // Delay Delivery
+            //10. 如果是consumer 消费失败ack的消息  delayLevel一定大于0 这里会把topic换成 延迟队列 topic  delayLevel相关见org/apache/rocketmq/broker/processor/SendMessageProcessor.java:203
+            //0. 消费失败大致思路明了：消费失败的 重发到broker 转发到延时队列  SCHEDULE_TOPIC_XXXX 并提交commitlog 等待一段时间后重新消费
             if (msg.getDelayTimeLevel() > 0) {
                 if (msg.getDelayTimeLevel() > this.defaultMessageStore.getScheduleMessageService().getMaxDelayLevel()) {
                     msg.setDelayTimeLevel(this.defaultMessageStore.getScheduleMessageService().getMaxDelayLevel());

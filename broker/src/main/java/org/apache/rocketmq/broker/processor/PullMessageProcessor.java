@@ -90,6 +90,7 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
         return false;
     }
 
+    // 13. broker接收消息入口
     private RemotingCommand processRequest(final Channel channel, RemotingCommand request, boolean brokerAllowSuspend)
         throws RemotingCommandException {
         // 检查消息
@@ -237,7 +238,7 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
             messageFilter = new ExpressionMessageFilter(subscriptionData, consumerFilterData,
                 this.brokerController.getConsumerFilterManager());
         }
-        // 查找消息  消息存储在DefaultMessageStore中
+        //14. 查找消息  消息存储在DefaultMessageStore中
         final GetMessageResult getMessageResult =
             this.brokerController.getMessageStore().getMessage(requestHeader.getConsumerGroup(), requestHeader.getTopic(),
                 requestHeader.getQueueId(), requestHeader.getQueueOffset(), requestHeader.getMaxMsgNums(), messageFilter);
@@ -249,8 +250,8 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
             responseHeader.setMinOffset(getMessageResult.getMinOffset());
             responseHeader.setMaxOffset(getMessageResult.getMaxOffset());
 
-            // 拉取消息建议  如果上次在从节点拉取消息很慢 会建议这次从主节点拉取
-            // 如果是建议从从节点中拉取的消息
+            //18. 拉取消息建议  如果上次在从节点拉取消息很慢 会建议这次从主节点拉取
+            // 否则建议从从节点中拉取的消息
 
             if (getMessageResult.isSuggestPullingFromSlave()) {
                 responseHeader.setSuggestWhichBrokerId(subscriptionGroupConfig.getWhichBrokerWhenConsumeSlowly());
@@ -282,7 +283,7 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
             } else {
                 responseHeader.setSuggestWhichBrokerId(MixAll.MASTER_ID);
             }
-            // 判断broker返回的结果状态  设置到 response中
+            //19. code转换  判断broker返回的结果状态  设置到 response中
             switch (getMessageResult.getStatus()) {
                 case FOUND:
                     response.setCode(ResponseCode.SUCCESS);
@@ -310,7 +311,7 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
                 case NO_MATCHED_MESSAGE:
                     response.setCode(ResponseCode.PULL_RETRY_IMMEDIATELY);
                     break;
-                case OFFSET_FOUND_NULL:
+                case OFFSET_FOUND_NULL: // 没找到内容， 需要转向下一个consume queue
                     response.setCode(ResponseCode.PULL_NOT_FOUND);
                     break;
                 case OFFSET_OVERFLOW_BADLY:
@@ -319,7 +320,7 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
                     log.info("the request offset: {} over flow badly, broker max offset: {}, consumer: {}",
                         requestHeader.getQueueOffset(), getMessageResult.getMaxOffset(), channel.remoteAddress());
                     break;
-                case OFFSET_OVERFLOW_ONE:
+                case OFFSET_OVERFLOW_ONE:  // 当前指向了最大消息偏移量  下一个是下一个文件的起始偏移量  因此下次还用这个offset
                     response.setCode(ResponseCode.PULL_NOT_FOUND);
                     break;
                 case OFFSET_TOO_SMALL:
@@ -415,11 +416,11 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
                     break;
                     // 消息未找到
                 case ResponseCode.PULL_NOT_FOUND:
-                    // 是否开启长轮询机制  brokerAllowSuspend 在85行中传入的是true
+                    //1. 是否开启长轮询机制  brokerAllowSuspend 在85行中传入的是true
                     if (brokerAllowSuspend && hasSuspendFlag) {
-                        // 拿到拉取时间
-                        long pollingTimeMills = suspendTimeoutMillisLong;
-                        if (!this.brokerController.getBrokerConfig().isLongPollingEnable()) {
+                        //2. 拿到拉取等待时间
+                        long pollingTimeMills = suspendTimeoutMillisLong; //15秒  org.apache.rocketmq.client.impl.consumer.DefaultMQPushConsumerImpl.BROKER_SUSPEND_MAX_TIME_MILLIS
+                        if (!this.brokerController.getBrokerConfig().isLongPollingEnable()) { // 没开启长轮训是1秒
                             pollingTimeMills = this.brokerController.getBrokerConfig().getShortPollingTimeMills();
                         }
 
@@ -429,7 +430,7 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
                         // 重新封装了一个拉取请求
                         PullRequest pullRequest = new PullRequest(request, channel, pollingTimeMills,
                             this.brokerController.getMessageStore().now(), offset, subscriptionData, messageFilter);
-                        // 将新的请求 ManyPullRequest 对象放到map中  通过 pullRequestHoldService 对象的run方法
+                        //3. 将新的请求 ManyPullRequest 对象放到map中  通过 pullRequestHoldService 对象的run方法
                         this.brokerController.getPullRequestHoldService().suspendPullRequest(topic, queueId, pullRequest);
                         response = null;
                         break;
@@ -471,7 +472,7 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
             response.setCode(ResponseCode.SYSTEM_ERROR);
             response.setRemark("store getMessage return null");
         }
-        // 更新当前消息拉取进度  通过commitOffset进行存储
+        //20. 更新当前消息拉取进度  通过commitOffset进行存储
         boolean storeOffsetEnable = brokerAllowSuspend;
         storeOffsetEnable = storeOffsetEnable && hasCommitOffsetFlag;
         storeOffsetEnable = storeOffsetEnable
@@ -565,6 +566,12 @@ public class PullMessageProcessor extends AsyncNettyRequestProcessor implements 
             @Override
             public void run() {
                 try {
+                    // 11. 异步发起调用 注意这里第三个参数不支持挂起   再次到第一个书签的时候  不会进入挂起状态 而是直接返回PULL_NOT_FOUND
+                    // 见 PullMessageProcessor 419行
+                    // 12. tips : 长轮询 短轮询 本质就是挂起最大等待时间不同
+                    //     两者都是隔一段时间进行检测是否有数据（maxOffset 大于请求的offset）
+                    //     在超时之间找到数据就再次调用processRequest拉取
+                    //     否则超时返回PULL_NOT_FOUND
                     final RemotingCommand response = PullMessageProcessor.this.processRequest(channel, request, false);
 
                     if (response != null) {

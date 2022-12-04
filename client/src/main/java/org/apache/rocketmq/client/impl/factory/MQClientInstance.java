@@ -236,7 +236,7 @@ public class MQClientInstance {
                     // Start various schedule tasks
                     this.startScheduledTask();
                     // Start pull service
-                    // 启动消息拉取服务
+                    //1. 启动消息拉取服务
                     this.pullMessageService.start();
                     // Start rebalance service
                     // 启动负载均衡服务

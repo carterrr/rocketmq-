@@ -80,7 +80,7 @@ public class PullMessageService extends ServiceThread {
         // 找到消费者
         final MQConsumerInner consumer = this.mQClientFactory.selectConsumer(pullRequest.getConsumerGroup());
         if (consumer != null) {
-            // 转换并调用pullMessage 方法
+            // 转换并调用pullMessage 方法  注意 这个线程只为推模式服务
             DefaultMQPushConsumerImpl impl = (DefaultMQPushConsumerImpl) consumer;
             impl.pullMessage(pullRequest);
         } else {
@@ -95,9 +95,12 @@ public class PullMessageService extends ServiceThread {
 
         while (!this.isStopped()) {
             try {
-                // 从拉取请求的队列中获取请求对象
+                // 2. !!! 学习以下这里循环的处理方式 通过一个blockqueue来进行循环控制
+                //                              从拉取请求的队列中获取请求对象  pullRequest在两个地方会put进去
+                //                              a.后面的PullMessage方法中拉取完消息在放一个进去形成循环
+                //                              b.rebalanceImpl中定期创建本consumer消费对应queue的pullRequest列表put进来
                 PullRequest pullRequest = this.pullRequestQueue.take();
-                // 处理拉取请求
+                // 3. 处理拉取请求
                 this.pullMessage(pullRequest);
             } catch (InterruptedException ignored) {
             } catch (Exception e) {

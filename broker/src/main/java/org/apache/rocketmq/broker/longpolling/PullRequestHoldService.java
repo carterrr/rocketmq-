@@ -51,7 +51,7 @@ public class PullRequestHoldService extends ServiceThread {
                 mpr = prev;
             }
         }
-
+        // 4. 将当前pullRequest加入到 队列累计拉取请求的列表当中
         mpr.addPullRequest(pullRequest);
     }
 
@@ -68,7 +68,7 @@ public class PullRequestHoldService extends ServiceThread {
         log.info("{} service started", this.getServiceName());
         while (!this.isStopped()) {
             try {
-                // 每次等待一定时间在去检查请求是否到达
+                //5. 每次等待一定时间在去检查请求是否到达
                 if (this.brokerController.getBrokerConfig().isLongPollingEnable()) {
                     // 开启长轮询等待5s
                     this.waitForRunning(5 * 1000);
@@ -78,7 +78,7 @@ public class PullRequestHoldService extends ServiceThread {
                 }
 
                 long beginLockTimestamp = this.systemClock.now();
-                // 请求未找到队列 pullRequestTable 中 检查是否有新消息到达
+                //6. 检查 pullRequestTable 中对应的queue 是否有新消息到达
                 this.checkHoldRequest();
                 long costTime = this.systemClock.now() - beginLockTimestamp;
                 if (costTime > 5 * 1000) {
@@ -103,7 +103,7 @@ public class PullRequestHoldService extends ServiceThread {
             if (2 == kArray.length) {
                 String topic = kArray[0];
                 int queueId = Integer.parseInt(kArray[1]);
-                // 检查本地offset是否有变化 即有没有新的消息
+                // 拿到最大offset
                 final long offset = this.brokerController.getMessageStore().getMaxOffsetInQueue(topic, queueId);
                 try {
                     this.notifyMessageArriving(topic, queueId, offset);
@@ -123,7 +123,7 @@ public class PullRequestHoldService extends ServiceThread {
         String key = this.buildKey(topic, queueId);
         ManyPullRequest mpr = this.pullRequestTable.get(key);
         if (mpr != null) {
-            List<PullRequest> requestList = mpr.cloneListAndClear();
+            List<PullRequest> requestList = mpr.cloneListAndClear(); // 注意这个方法是synchronized的 防止并发访问
             if (requestList != null) {
                 List<PullRequest> replayList = new ArrayList<PullRequest>();
 
@@ -132,9 +132,9 @@ public class PullRequestHoldService extends ServiceThread {
                     if (newestOffset <= request.getPullFromThisOffset()) {
                         newestOffset = this.brokerController.getMessageStore().getMaxOffsetInQueue(topic, queueId);
                     }
-                    // 新的消息进度 是否大于拉取的进度
+                    //7. 最大offset 大于pullRequest拉取的offset
                     if (newestOffset > request.getPullFromThisOffset()) {
-                        // 判断新的消息是否当前consumer所感兴趣的
+                        //8. tag 过滤对应queue
                         boolean match = request.getMessageFilter().isMatchedByConsumeQueue(tagsCode,
                             new ConsumeQueueExt.CqExtUnit(tagsCode, msgStoreTime, filterBitMap));
                         // match by bit map, need eval again when properties is not null.
@@ -144,7 +144,7 @@ public class PullRequestHoldService extends ServiceThread {
 
                         if (match) {
                             try {
-                                // 如果是当前consumer所感兴趣的  唤醒对应客户端  request.getClientChannel() 来处理这个消息
+                                // 9. 唤醒对应客户端  request.getClientChannel() 来处理这个消息
                                 this.brokerController.getPullMessageProcessor().executeRequestWhenWakeup(request.getClientChannel(),
                                     request.getRequestCommand());
                             } catch (Throwable e) {
@@ -153,7 +153,7 @@ public class PullRequestHoldService extends ServiceThread {
                             continue;
                         }
                     }
-                    // 如果超时还一直未找到当前consumer感兴趣的  如果超时了  直接给客户端返回 当前消息没找到
+                    // 10. 如果超时了  直接给客户端返回 当前消息没找到
                     if (System.currentTimeMillis() >= (request.getSuspendTimestamp() + request.getTimeoutMillis())) {
                         try {
                             this.brokerController.getPullMessageProcessor().executeRequestWhenWakeup(request.getClientChannel(),
